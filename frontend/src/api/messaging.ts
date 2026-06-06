@@ -5,7 +5,7 @@ export const messagingApi = {
   getConversations: () => api.get<PaginatedResponse<Conversation>>('/conversations/'),
 
   createOrGetConversation: (participantId: string) =>
-    api.post<Conversation>('/conversations/', { participant_id: participantId }),
+    api.post<Conversation>('/conversations/get_or_create/', { participant_id: participantId }),
 
   getMessages: (conversationId: string, page = 1) =>
     api.get<PaginatedResponse<Message>>(`/conversations/${conversationId}/messages/`, { params: { page } }),
@@ -14,8 +14,9 @@ export const messagingApi = {
     api.post<Message>(`/conversations/${conversationId}/messages/`, { body }),
 
   markRead: (conversationId: string) =>
-    api.post(`/conversations/${conversationId}/read/`),
+    api.post(`/conversations/${conversationId}/mark_read/`),
 
   sendTyping: (conversationId: string) =>
     api.post(`/conversations/${conversationId}/typing/`),
 };
+

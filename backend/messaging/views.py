@@ -69,9 +69,20 @@ class MessageViewSet(viewsets.ModelViewSet):
         conversation_id = self.kwargs.get('conversation_id')
         return Message.objects.filter(conversation_id=conversation_id)
 
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+        context['request'] = self.request
+        return context
+
     def perform_create(self, serializer):
+        from django.utils import timezone
         conversation_id = self.kwargs.get('conversation_id')
-        serializer.save(conversation_id=conversation_id)
+        message = serializer.save(
+            sender=self.request.user,
+            conversation_id=conversation_id,
+        )
+        # Bubble conversation to top of list
+        Conversation.objects.filter(pk=conversation_id).update(updated_at=timezone.now())
 
 
 class TypingView(APIView):

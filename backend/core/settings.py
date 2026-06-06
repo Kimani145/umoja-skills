@@ -17,10 +17,10 @@ SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-dev-key-change-in-pro
 DEBUG = os.environ.get('DEBUG', 'True') == 'True'
 
 ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', '*').split(',')
-# Railway injects RAILWAY_PUBLIC_DOMAIN automatically
-RAILWAY_HOST = os.environ.get('RAILWAY_PUBLIC_DOMAIN', '')
-if RAILWAY_HOST and RAILWAY_HOST not in ALLOWED_HOSTS:
-    ALLOWED_HOSTS.append(RAILWAY_HOST)
+# Render injects RENDER_EXTERNAL_HOSTNAME automatically
+RENDER_HOST = os.environ.get('RENDER_EXTERNAL_HOSTNAME', '')
+if RENDER_HOST and RENDER_HOST not in ALLOWED_HOSTS:
+    ALLOWED_HOSTS.append(RENDER_HOST)
 
 # ── Installed apps ────────────────────────────────────────────────────────────
 INSTALLED_APPS = [
@@ -150,9 +150,13 @@ CORS_ALLOWED_ORIGINS = [
     'http://127.0.0.1:5173',
     'http://127.0.0.1:5174',
 ]
-VERCEL_URL = os.environ.get('VERCEL_FRONTEND_URL', '')
-if VERCEL_URL:
-    CORS_ALLOWED_ORIGINS.append(VERCEL_URL)
+# Accept both VERCEL and RENDER frontend URLs
+for _origin in filter(None, [
+    os.environ.get('VERCEL_FRONTEND_URL', ''),
+    os.environ.get('RENDER_FRONTEND_URL', ''),
+]):
+    if _origin not in CORS_ALLOWED_ORIGINS:
+        CORS_ALLOWED_ORIGINS.append(_origin)
 
 CORS_ALLOW_CREDENTIALS = True
 
