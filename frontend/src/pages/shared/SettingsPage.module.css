@@ -1,0 +1,5 @@
+.content { padding: 24px; display: flex; flex-direction: column; gap: 16px; max-width: 640px; }
+.pageTitle { font-size: 22px; font-weight: 700; }
+.section { padding: 22px 24px; }
+.sectionTitle { font-size: 15px; font-weight: 700; margin-bottom: 6px; }
+.sectionSub { font-size: 13.5px; color: var(--color-text-muted); }

@@ -1,0 +1,145 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap');
+
+:root {
+  /* Brand */
+  --color-primary: #4F6EF7;
+  --color-primary-hover: #3B5BDB;
+  --color-primary-light: #EBF0FF;
+
+  /* Semantic status */
+  --color-confirmed: #057A55;
+  --color-confirmed-bg: #DEF7EC;
+  --color-pending: #C27803;
+  --color-pending-bg: #FDF6B2;
+  --color-cancelled: #C81E1E;
+  --color-cancelled-bg: #FDE8E8;
+  --color-completed: #1A56DB;
+  --color-completed-bg: #EBF0FF;
+
+  /* Neutrals (Light Mode) */
+  --color-bg: #F5F7FF;
+  --color-surface: #FFFFFF;
+  --color-surface-2: #F0F2FA;
+  --color-border: #E2E5F1;
+  --color-text-primary: #0F1631;
+  --color-text-secondary: #5A6481;
+  --color-text-muted: #9BA3BF;
+
+  /* Sidebar */
+  --sidebar-width: 240px;
+  --topbar-height: 64px;
+
+  /* Sidebar specific */
+  --sidebar-bg: #1A1D2E;
+  --sidebar-text: #A8B0CC;
+  --sidebar-text-active: #FFFFFF;
+  --sidebar-active-bg: rgba(79,110,247,0.18);
+  --sidebar-logo-text: #FFFFFF;
+
+  /* Elevation */
+  --shadow-sm: 0 1px 3px rgba(15,22,49,0.06);
+  --shadow-md: 0 4px 12px rgba(15,22,49,0.08), 0 1px 4px rgba(15,22,49,0.04);
+  --shadow-lg: 0 10px 30px rgba(15,22,49,0.12), 0 4px 10px rgba(15,22,49,0.06);
+
+  /* Radius */
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 16px;
+
+  /* Transition */
+  --transition: 0.2s ease;
+}
+
+/* ── Dark Mode ── */
+[data-theme="dark"] {
+  --color-primary: #6B8AFF;
+  --color-primary-hover: #5A7BF0;
+  --color-primary-light: rgba(107,138,255,0.15);
+
+  --color-confirmed: #34D399;
+  --color-confirmed-bg: rgba(52,211,153,0.12);
+  --color-pending: #FBBF24;
+  --color-pending-bg: rgba(251,191,36,0.12);
+  --color-cancelled: #F87171;
+  --color-cancelled-bg: rgba(248,113,113,0.12);
+  --color-completed: #60A5FA;
+  --color-completed-bg: rgba(96,165,250,0.12);
+
+  --color-bg: #0D0F1A;
+  --color-surface: #161825;
+  --color-surface-2: #1E2035;
+  --color-border: rgba(255,255,255,0.08);
+  --color-text-primary: #E8EAFF;
+  --color-text-secondary: #8892B0;
+  --color-text-muted: #5A6480;
+
+  --sidebar-bg: #0A0C16;
+  --sidebar-text: #6B7494;
+  --sidebar-text-active: #E8EAFF;
+  --sidebar-active-bg: rgba(107,138,255,0.15);
+  --sidebar-logo-text: #E8EAFF;
+
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.3);
+  --shadow-md: 0 4px 12px rgba(0,0,0,0.4), 0 1px 4px rgba(0,0,0,0.2);
+  --shadow-lg: 0 10px 30px rgba(0,0,0,0.5), 0 4px 10px rgba(0,0,0,0.3);
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { transition: background var(--transition), color var(--transition); }
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--color-bg);
+  color: var(--color-text-primary);
+  font-size: 14px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  transition: background var(--transition), color var(--transition);
+}
+
+a { color: inherit; text-decoration: none; }
+button { cursor: pointer; font-family: inherit; }
+input, textarea, select { font-family: inherit; }
+
+.mono { font-family: 'DM Mono', monospace; }
+
+/* Utility classes */
+.text-secondary { color: var(--color-text-secondary); }
+.text-muted { color: var(--color-text-muted); }
+.text-primary-color { color: var(--color-primary); }
+
+.truncate {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Status badge */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 10px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+.badge--confirmed { background: var(--color-confirmed-bg); color: var(--color-confirmed); }
+.badge--pending   { background: var(--color-pending-bg);   color: var(--color-pending); }
+.badge--cancelled { background: var(--color-cancelled-bg); color: var(--color-cancelled); }
+.badge--completed { background: var(--color-completed-bg); color: var(--color-completed); }
+
+/* Card base */
+.card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--color-border); border-radius: 4px; }

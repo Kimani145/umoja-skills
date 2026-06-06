@@ -1,0 +1,120 @@
+.topbar {
+  height: var(--topbar-height);
+  background: var(--color-surface);
+  border-bottom: 1px solid var(--color-border);
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 0 24px;
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  transition: background var(--transition), border-color var(--transition);
+}
+
+.greet { min-width: 220px; }
+.title { font-size: 18px; font-weight: 700; color: var(--color-text-primary); line-height: 1.2; }
+.subtitle { font-size: 12px; color: var(--color-text-secondary); }
+
+.searchWrap {
+  flex: 1;
+  max-width: 500px;
+  display: flex;
+  align-items: center;
+  background: var(--color-surface-2);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  padding: 0 12px;
+  gap: 8px;
+}
+
+.searchIcon { color: var(--color-text-muted); flex-shrink: 0; }
+
+.searchInput {
+  flex: 1;
+  border: none;
+  background: transparent;
+  padding: 9px 0;
+  font-size: 13.5px;
+  outline: none;
+  color: var(--color-text-primary);
+}
+
+.searchBtn {
+  background: var(--color-primary);
+  color: white;
+  border: none;
+  padding: 6px 16px;
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.searchBtn:hover { background: var(--color-primary-hover); }
+
+.actions { display: flex; align-items: center; gap: 12px; margin-left: auto; }
+
+.bell {
+  width: 36px; height: 36px;
+  border-radius: 50%;
+  border: 1px solid var(--color-border);
+  background: none;
+  display: grid; place-items: center;
+  color: var(--color-text-secondary);
+}
+.bell:hover { background: var(--color-surface-2); }
+
+.avatarWrap { position: relative; }
+
+.avatar {
+  width: 36px; height: 36px;
+  border-radius: 50%;
+  background: var(--color-primary);
+  color: white;
+  display: grid; place-items: center;
+  font-size: 13px; font-weight: 700;
+  border: none;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+.avatar:hover { opacity: 0.85; }
+
+.dropdown {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-lg);
+  min-width: 210px;
+  z-index: 200;
+  overflow: hidden;
+}
+
+.dropHeader {
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--color-border);
+}
+.dropName { font-size: 14px; font-weight: 700; }
+.dropEmail { font-size: 12px; color: var(--color-text-muted); margin-top: 2px; overflow: hidden; text-overflow: ellipsis; }
+.dropRole {
+  display: inline-block;
+  font-size: 11px; font-weight: 600;
+  background: var(--color-primary-light);
+  color: var(--color-primary);
+  padding: 2px 8px; border-radius: 20px;
+  margin-top: 6px; text-transform: uppercase; letter-spacing: 0.04em;
+}
+
+.dropItem {
+  display: flex; align-items: center; gap: 10px;
+  width: 100%; padding: 11px 16px;
+  background: none; border: none;
+  font-size: 13.5px; font-weight: 500;
+  color: var(--color-text-primary);
+  text-align: left; cursor: pointer;
+}
+.dropItem:hover { background: var(--color-surface-2); }
+.dropItemDanger { color: var(--color-cancelled); }
+.dropItemDanger:hover { background: rgba(255,77,79,0.08); }

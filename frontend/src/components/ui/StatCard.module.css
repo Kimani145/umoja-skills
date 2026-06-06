@@ -1,0 +1,19 @@
+.card { padding: 20px 24px; }
+
+.body {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.label { font-size: 13px; color: var(--color-text-secondary); margin-bottom: 6px; }
+.value { font-size: 28px; font-weight: 700; color: var(--color-text-primary); line-height: 1; }
+.sublabel { font-size: 11px; color: var(--color-text-muted); margin-top: 4px; }
+
+.icon {
+  width: 48px; height: 48px;
+  border-radius: var(--radius-md);
+  display: grid; place-items: center;
+  flex-shrink: 0;
+}

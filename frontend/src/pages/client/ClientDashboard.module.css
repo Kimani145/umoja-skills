@@ -1,0 +1,55 @@
+.content { padding: 24px; display: flex; flex-direction: column; gap: 24px; }
+
+.statsRow { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+
+.twoCol { display: grid; grid-template-columns: 1fr 320px; gap: 20px; align-items: start; }
+
+.mainCol { display: flex; flex-direction: column; gap: 20px; }
+
+.sectionHead { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+
+.sectionTitle { font-size: 16px; font-weight: 700; }
+
+.viewAll {
+  display: flex; align-items: center; gap: 2px;
+  font-size: 13px; color: var(--color-primary); font-weight: 600;
+}
+
+.categories {
+  display: flex;
+  gap: 20px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+}
+
+.catItem {
+  display: flex; flex-direction: column; align-items: center; gap: 8px;
+  min-width: 72px; font-size: 12px; font-weight: 500;
+  color: var(--color-text-primary); text-align: center;
+}
+
+.catIcon {
+  width: 52px; height: 52px;
+  border-radius: 50%;
+  background: var(--color-primary-light);
+  display: grid; place-items: center;
+  color: var(--color-primary);
+}
+.catItem:hover .catIcon { background: var(--color-primary); color: white; }
+
+.providerGrid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+
+.activityCard { height: fit-content; }
+
+.activities { display: flex; flex-direction: column; padding: 0 20px 16px; gap: 14px; }
+
+.activity { display: flex; gap: 12px; align-items: flex-start; }
+
+.activityDot {
+  width: 8px; height: 8px;
+  border-radius: 50%; background: var(--color-primary);
+  margin-top: 5px; flex-shrink: 0;
+}
+
+.activityText { font-size: 13.5px; }
+.activityTime { font-size: 11.5px; color: var(--color-text-muted); margin-top: 2px; }
