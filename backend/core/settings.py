@@ -143,23 +143,7 @@ SIMPLE_JWT = {
 }
 
 # ── CORS ──────────────────────────────────────────────────────────────────────
-CORS_ALLOWED_ORIGINS = [
-    'http://localhost:5173',
-    'http://localhost:5174',
-    'http://localhost:3000',
-    'http://127.0.0.1:5173',
-    'http://127.0.0.1:5174',
-    # Production frontend — always allowed
-    'https://umoja-skills.vercel.app',
-]
-# Also accept VERCEL_FRONTEND_URL / RENDER_FRONTEND_URL env vars for flexibility
-for _origin in filter(None, [
-    os.environ.get('VERCEL_FRONTEND_URL', ''),
-    os.environ.get('RENDER_FRONTEND_URL', ''),
-]):
-    if _origin not in CORS_ALLOWED_ORIGINS:
-        CORS_ALLOWED_ORIGINS.append(_origin)
-
+CORS_ALLOW_ALL_ORIGINS = True
 CORS_ALLOW_CREDENTIALS = True
 
 
