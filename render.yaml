@@ -1,10 +1,10 @@
 services:
   # ── Django Backend ──────────────────────────────────────────────────────────
   - type: web
-    name: umoja-backend
+    name: umoja-skills
     runtime: python
     rootDir: backend
-    buildCommand: pip install -r requirements.txt && python manage.py collectstatic --noinput
+    buildCommand: pip install -r requirements.txt && python manage.py migrate --noinput && python manage.py collectstatic --noinput
     startCommand: gunicorn core.wsgi:application --bind 0.0.0.0:$PORT --workers 2 --timeout 120
     healthCheckPath: /api/health/
     envVars:
@@ -18,12 +18,8 @@ services:
           property: connectionString
       - key: ALLOWED_HOSTS
         value: "*"
-      # Set this after the frontend is deployed:
       - key: VERCEL_FRONTEND_URL
-        value: "https://REPLACE_WITH_YOUR_VERCEL_URL"
-      # Or if hosting frontend on Render Static Site, set:
-      # - key: RENDER_FRONTEND_URL
-      #   value: "https://umoja-frontend.onrender.com"
+        value: "https://umoja-skills.vercel.app"
 
   # ── PostgreSQL Database ─────────────────────────────────────────────────────
 databases:

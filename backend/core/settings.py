@@ -149,8 +149,10 @@ CORS_ALLOWED_ORIGINS = [
     'http://localhost:3000',
     'http://127.0.0.1:5173',
     'http://127.0.0.1:5174',
+    # Production frontend — always allowed
+    'https://umoja-skills.vercel.app',
 ]
-# Accept both VERCEL and RENDER frontend URLs
+# Also accept VERCEL_FRONTEND_URL / RENDER_FRONTEND_URL env vars for flexibility
 for _origin in filter(None, [
     os.environ.get('VERCEL_FRONTEND_URL', ''),
     os.environ.get('RENDER_FRONTEND_URL', ''),
@@ -159,6 +161,7 @@ for _origin in filter(None, [
         CORS_ALLOWED_ORIGINS.append(_origin)
 
 CORS_ALLOW_CREDENTIALS = True
+
 
 # ── Production security headers ───────────────────────────────────────────────
 if not DEBUG:
