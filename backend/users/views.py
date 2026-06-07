@@ -21,18 +21,22 @@ class RegisterView(APIView):
         if not serializer.is_valid():
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-        with transaction.atomic():
-            user = serializer.save()
-            # Auto-create ProviderProfile for PROVIDER role
-            if user.role == 'PROVIDER':
-                ProviderProfile.objects.get_or_create(user=user)
+        try:
+            with transaction.atomic():
+                user = serializer.save()
+                # Auto-create ProviderProfile for PROVIDER role
+                if user.role == 'PROVIDER':
+                    ProviderProfile.objects.get_or_create(user=user)
 
-        refresh = RefreshToken.for_user(user)
-        return Response({
-            'user': UserSerializer(user).data,
-            'access': str(refresh.access_token),
-            'refresh': str(refresh),
-        }, status=status.HTTP_201_CREATED)
+            refresh = RefreshToken.for_user(user)
+            return Response({
+                'user': UserSerializer(user).data,
+                'access': str(refresh.access_token),
+                'refresh': str(refresh),
+            }, status=status.HTTP_201_CREATED)
+        except Exception as e:
+            import traceback
+            return Response({"error": str(e), "traceback": traceback.format_exc()}, status=status.HTTP_400_BAD_REQUEST)
 
 
 class LoginView(APIView):
