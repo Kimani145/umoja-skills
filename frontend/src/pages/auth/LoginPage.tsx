@@ -5,23 +5,30 @@ import { authApi } from '../../api/auth';
 import styles from './Auth.module.css';
 
 export default function LoginPage() {
-  const [email, setEmail] = useState('');
+  const [email, setEmail]     = useState('');
   const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
+  const [showPw, setShowPw]   = useState(false);
+  const [error, setError]     = useState('');
   const [loading, setLoading] = useState(false);
+
   const { setAuth } = useAuthStore();
-  const navigate = useNavigate();
-  const [params] = useSearchParams();
+  const navigate    = useNavigate();
+  const [params]    = useSearchParams();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true); setError('');
+    setLoading(true);
+    setError('');
     try {
       const { data } = await authApi.login(email, password);
       setAuth(data.user, data.access, data.refresh);
       navigate(params.get('next') || '/dashboard');
     } catch (err: any) {
-      setError(err.response?.data?.detail || err.response?.data?.non_field_errors?.[0] || 'Invalid email or password.');
+      setError(
+        err.response?.data?.detail ||
+        err.response?.data?.non_field_errors?.[0] ||
+        'Invalid email or password.'
+      );
     } finally {
       setLoading(false);
     }
@@ -32,7 +39,7 @@ export default function LoginPage() {
       <div className={styles.card}>
         <div className={styles.logoRow}>
           <div className={styles.logoIcon} />
-          <span className={styles.logoLabel}>Community Skills Directory</span>
+          <span className={styles.logoLabel}>Umoja Skills — Community Directory</span>
         </div>
         <h1 className={styles.title}>Sign in to your account</h1>
 
@@ -43,22 +50,43 @@ export default function LoginPage() {
             Email address
             <input
               className={styles.input}
-              type="email" value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="name@example.com" required autoFocus
+              type="email"
+              value={email}
+              onChange={e => setEmail(e.target.value)}
+              placeholder="name@example.com"
+              autoComplete="email"
+              required
+              autoFocus
             />
           </label>
-          <label className={styles.label}>
-            Password
-            <input
-              className={styles.input}
-              type="password" value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="••••••••" required
-            />
-          </label>
+
+          <div>
+            <label className={styles.label}>
+              Password
+              <div className={styles.passwordWrap}>
+                <input
+                  className={styles.input}
+                  type={showPw ? 'text' : 'password'}
+                  value={password}
+                  onChange={e => setPassword(e.target.value)}
+                  placeholder="••••••••"
+                  autoComplete="current-password"
+                  required
+                />
+                <button
+                  type="button"
+                  className={styles.eyeBtn}
+                  onClick={() => setShowPw(v => !v)}
+                  aria-label={showPw ? 'Hide password' : 'Show password'}
+                >
+                  {showPw ? '🙈' : '👁'}
+                </button>
+              </div>
+            </label>
+          </div>
+
           <button className={styles.btn} type="submit" disabled={loading}>
-            {loading ? 'Signing in...' : 'Sign in'}
+            {loading ? 'Signing in…' : 'Sign in'}
           </button>
         </form>
 

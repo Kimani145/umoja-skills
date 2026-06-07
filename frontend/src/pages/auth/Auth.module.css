@@ -29,6 +29,7 @@
   width: 32px; height: 32px;
   background: var(--color-primary);
   border-radius: 8px;
+  flex-shrink: 0;
 }
 
 .logoLabel {
@@ -44,7 +45,7 @@
   color: var(--color-text-primary);
 }
 
-.form { display: flex; flex-direction: column; gap: 16px; }
+.form { display: flex; flex-direction: column; gap: 14px; }
 
 .label {
   display: flex;
@@ -61,17 +62,96 @@
   border-radius: var(--radius-sm);
   font-size: 14px;
   outline: none;
-  transition: border-color 0.15s, background 0.15s;
+  transition: border-color 0.15s, background 0.15s, box-shadow 0.15s;
   background: var(--color-surface-2);
   color: var(--color-text-primary);
   width: 100%;
+  box-sizing: border-box;
 }
 .input:focus {
   border-color: var(--color-primary);
   background: var(--color-surface);
   box-shadow: 0 0 0 3px var(--color-primary-light);
 }
+.inputError {
+  border-color: #ef4444 !important;
+  background: #fff5f5 !important;
+}
+.inputError:focus {
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.12) !important;
+}
 
+/* ── Password field with eye-toggle ─────────────────────────────────────── */
+.passwordWrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+.passwordWrap .input {
+  padding-right: 44px;
+}
+.eyeBtn {
+  position: absolute;
+  right: 10px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 16px;
+  line-height: 1;
+  padding: 4px;
+  color: var(--color-text-secondary);
+  transition: opacity 0.15s;
+}
+.eyeBtn:hover { opacity: 0.7; }
+
+/* ── Password strength bar ───────────────────────────────────────────────── */
+.strengthRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 6px;
+}
+.strengthBar {
+  display: flex;
+  gap: 4px;
+  flex: 1;
+}
+.strengthSegment {
+  height: 4px;
+  flex: 1;
+  border-radius: 2px;
+  background: var(--color-border, #e5e7eb);
+  transition: background 0.25s;
+}
+.strengthLabel {
+  font-size: 11px;
+  font-weight: 600;
+  min-width: 60px;
+  text-align: right;
+}
+
+/* ── Field-level errors ──────────────────────────────────────────────────── */
+.fieldError {
+  color: #ef4444;
+  font-size: 12px;
+  margin: 3px 0 0;
+  font-weight: 500;
+}
+.hint {
+  color: var(--color-text-secondary);
+  font-size: 12px;
+  margin: 3px 0 0;
+}
+
+/* ── Location label ──────────────────────────────────────────────────────── */
+.locationLabel {
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--color-text-primary);
+  margin: 0 0 6px;
+}
+
+/* ── Submit button ───────────────────────────────────────────────────────── */
 .btn {
   background: var(--color-primary);
   color: white;
@@ -82,6 +162,7 @@
   font-weight: 600;
   margin-top: 4px;
   transition: background 0.15s, transform 0.1s;
+  cursor: pointer;
 }
 .btn:hover:not(:disabled) {
   background: var(--color-primary-hover);
@@ -90,6 +171,7 @@
 .btn:active:not(:disabled) { transform: translateY(0); }
 .btn:disabled { opacity: 0.6; cursor: not-allowed; }
 
+/* ── Server error banner ─────────────────────────────────────────────────── */
 .error {
   background: var(--color-cancelled-bg);
   color: var(--color-cancelled);
