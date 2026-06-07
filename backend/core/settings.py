@@ -78,8 +78,8 @@ WSGI_APPLICATION = 'core.wsgi.application'
 
 # ── Database ──────────────────────────────────────────────────────────────────
 DATABASES = {
-    'default': dj_database_url.config(
-        default=os.environ.get('DATABASE_URL', 'postgresql://postgres.smfurojgloigggjykmql:UmojaSkills%40001@aws-1-eu-central-1.pooler.supabase.com:5432/postgres'),
+    'default': dj_database_url.parse(
+        'postgresql://postgres.smfurojgloigggjykmql:UmojaSkills%40001@aws-1-eu-central-1.pooler.supabase.com:5432/postgres',
         conn_max_age=600,
         conn_health_checks=True,
     )
