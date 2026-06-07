@@ -1,16 +1,21 @@
 import { useState, useRef, useEffect } from 'react';
-import { Bell, Search, User, LogOut } from 'lucide-react';
+import { Bell, Search, User, LogOut, Menu } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../../store/auth.store';
+import { useLayout } from './LayoutContext';
 import styles from './TopBar.module.css';
 
 interface Props {
   searchVisible?: boolean;
+  onMenuClick?: () => void;
 }
 
-export default function TopBar({ searchVisible = true }: Props) {
+export default function TopBar({ searchVisible = true, onMenuClick: onMenuClickProp }: Props) {
   const { user, logout } = useAuthStore();
   const navigate = useNavigate();
+  const { onMenuClick: onMenuClickCtx } = useLayout();
+  // Prop takes priority; fall back to context value from AppLayout
+  const onMenuClick = onMenuClickProp ?? onMenuClickCtx;
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropRef = useRef<HTMLDivElement>(null);
 
@@ -34,11 +39,25 @@ export default function TopBar({ searchVisible = true }: Props) {
 
   return (
     <header className={styles.topbar}>
+      {/* ── Hamburger button (mobile only) ── */}
+      {onMenuClick && (
+        <button
+          id="sidebar-toggle"
+          className={styles.menuBtn}
+          onClick={onMenuClick}
+          aria-label="Open navigation menu"
+        >
+          <Menu size={22} />
+        </button>
+      )}
+
+      {/* ── Greeting (hidden on mobile, visible md+) ── */}
       <div className={styles.greet}>
         <h1 className={styles.title}>Welcome, {user?.first_name || 'there'}!</h1>
         <p className={styles.subtitle}>Find trusted local service providers in Umoja.</p>
       </div>
 
+      {/* ── Search bar (hidden on mobile, visible lg+) ── */}
       {searchVisible && (
         <div className={styles.searchWrap}>
           <Search size={16} className={styles.searchIcon} />
@@ -64,8 +83,11 @@ export default function TopBar({ searchVisible = true }: Props) {
         </div>
       )}
 
+      {/* ── Right actions ── */}
       <div className={styles.actions}>
-        <button className={styles.bell}><Bell size={18} /></button>
+        <button className={styles.bell} aria-label="Notifications">
+          <Bell size={18} />
+        </button>
 
         {/* Clickable avatar with dropdown */}
         <div className={styles.avatarWrap} ref={dropRef}>
@@ -73,6 +95,7 @@ export default function TopBar({ searchVisible = true }: Props) {
             className={styles.avatar}
             onClick={() => setDropdownOpen(v => !v)}
             aria-label="Account menu"
+            aria-expanded={dropdownOpen}
           >
             {initials}
           </button>
@@ -103,4 +126,3 @@ export default function TopBar({ searchVisible = true }: Props) {
     </header>
   );
 }
-

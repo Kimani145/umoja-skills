@@ -53,6 +53,7 @@ export default function ProviderDashboardPage() {
             ) : (data?.upcoming_bookings || []).length === 0 ? (
               <p className={styles.empty}>No upcoming bookings.</p>
             ) : (
+              <div className={styles.tableWrap}>
               <table className={styles.table}>
                 <thead>
                   <tr>
@@ -73,6 +74,7 @@ export default function ProviderDashboardPage() {
                   ))}
                 </tbody>
               </table>
+            </div>
             )}
           </div>
 

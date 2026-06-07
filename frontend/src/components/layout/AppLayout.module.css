@@ -1,20 +1,61 @@
+/* ── Shell ── */
 .shell {
   display: flex;
   min-height: 100vh;
+  position: relative;
 }
 
+/* ── Main content area ──
+   Mobile (default):   no left margin — sidebar is off-canvas
+   Tablet (≥768px):    margin = rail width (64px)
+   Desktop (≥1024px):  margin = full sidebar width (240px)
+*/
 .main {
-  margin-left: var(--sidebar-width);
+  margin-left: 0;
   flex: 1;
   min-height: 100vh;
+  min-width: 0;          /* prevent flex child from overflowing */
   display: flex;
   flex-direction: column;
   background: var(--color-bg);
-  transition: background var(--transition);
+  transition: margin-left var(--transition), background var(--transition);
 }
 
+@media (min-width: 768px) {
+  .main {
+    margin-left: var(--sidebar-rail-width); /* 64px rail */
+  }
+}
+
+@media (min-width: 1024px) {
+  .main {
+    margin-left: var(--sidebar-width); /* 240px full */
+  }
+}
+
+/* ── Page content wrapper (scrollable area below topbar) ── */
 .content {
   flex: 1;
-  padding: 24px;
   overflow-y: auto;
+  overflow-x: hidden;
+}
+
+/* ── Backdrop (mobile only, when drawer is open) ── */
+.backdrop {
+  display: block;
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  z-index: 150; /* below sidebar (z-index: 200) but above content */
+  animation: fadeIn 0.2s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@media (min-width: 768px) {
+  /* Backdrop never needed on tablet/desktop — sidebar is always visible */
+  .backdrop { display: none; }
 }

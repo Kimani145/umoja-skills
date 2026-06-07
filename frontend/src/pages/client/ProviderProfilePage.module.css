@@ -1,20 +1,55 @@
-.content { padding: 24px; max-width: 1200px; }
+/* Provider Profile Page — Mobile-first */
+
+.content {
+  padding: 16px;
+  max-width: 1200px;
+}
+
+@media (min-width: 640px) {
+  .content { padding: 20px; }
+}
+
+@media (min-width: 1024px) {
+  .content { padding: 24px; }
+}
 
 .back {
-  display: inline-flex; align-items: center; gap: 4px;
-  color: var(--color-text-secondary); font-size: 13.5px;
-  background: none; border: none;
-  margin-bottom: 20px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--color-text-secondary);
+  font-size: 13.5px;
+  background: none;
+  border: none;
+  margin-bottom: 16px;
 }
 .back:hover { color: var(--color-primary); }
 
-.grid { display: grid; grid-template-columns: 300px 1fr; gap: 20px; align-items: start; }
+/* Main grid: single column on mobile, side-by-side on desktop */
+.grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+}
+
+@media (min-width: 768px) {
+  .grid { grid-template-columns: 280px 1fr; gap: 20px; align-items: start; }
+}
+
+@media (min-width: 1024px) {
+  .grid { grid-template-columns: 300px 1fr; }
+}
 
 .leftCol {}
-.rightCol { display: flex; flex-direction: column; gap: 20px; }
+.rightCol { display: flex; flex-direction: column; gap: 16px; }
 
+@media (min-width: 640px) {
+  .rightCol { gap: 20px; }
+}
+
+/* Profile card */
 .profileCard {
-  padding: 28px 24px;
+  padding: 20px 16px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -22,111 +57,192 @@
   gap: 10px;
 }
 
+@media (min-width: 640px) {
+  .profileCard { padding: 28px 24px; }
+}
+
 .avatarLg {
-  width: 80px; height: 80px;
+  width: 72px;
+  height: 72px;
   border-radius: 50%;
   background: var(--color-primary-light);
   color: var(--color-primary);
-  font-size: 26px; font-weight: 700;
-  display: grid; place-items: center;
+  font-size: 22px;
+  font-weight: 700;
+  display: grid;
+  place-items: center;
 }
 
-.name { font-size: 20px; font-weight: 700; }
-.catLabel { font-size: 14px; font-weight: 600; }
+@media (min-width: 640px) {
+  .avatarLg { width: 80px; height: 80px; font-size: 26px; }
+}
+
+.name { font-size: 18px; font-weight: 700; }
+
+@media (min-width: 640px) {
+  .name { font-size: 20px; }
+}
+
+.catLabel { font-size: 13.5px; font-weight: 600; }
 
 .ratingRow { display: flex; align-items: center; gap: 6px; }
 .ratingNum { font-weight: 700; font-size: 14px; }
 .ratingCount { font-size: 12.5px; color: var(--color-text-muted); }
 
 .locationRow {
-  display: flex; align-items: center; gap: 5px;
-  font-size: 13px; color: var(--color-text-secondary);
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 13px;
+  color: var(--color-text-secondary);
 }
 
 .availBadge {
-  display: flex; align-items: center; gap: 6px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
   padding: 5px 14px;
   border-radius: 20px;
-  font-size: 12.5px; font-weight: 600;
+  font-size: 12.5px;
+  font-weight: 600;
 }
-.available { background: var(--color-confirmed-bg); color: var(--color-confirmed); }
+.available   { background: var(--color-confirmed-bg); color: var(--color-confirmed); }
 .unavailable { background: var(--color-cancelled-bg); color: var(--color-cancelled); }
-.availDot { width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
+.availDot    { width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
 
-.actionBtns { display: flex; gap: 10px; margin-top: 4px; }
+.actionBtns {
+  display: flex;
+  gap: 8px;
+  margin-top: 4px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
 
 .btnOutline {
-  display: flex; align-items: center; gap: 6px;
-  padding: 8px 18px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px;
   border: 1px solid var(--color-primary);
   background: none;
   color: var(--color-primary);
   border-radius: var(--radius-sm);
-  font-size: 13.5px; font-weight: 600;
+  font-size: 13px;
+  font-weight: 600;
   text-decoration: none;
 }
 .btnOutline:hover { background: var(--color-primary-light); }
 
 .btnPrimary {
-  display: flex; align-items: center; gap: 6px;
-  padding: 8px 18px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px;
   background: var(--color-primary);
-  color: white; border: none;
+  color: white;
+  border: none;
   border-radius: var(--radius-sm);
-  font-size: 13.5px; font-weight: 600;
+  font-size: 13px;
+  font-weight: 600;
 }
 .btnPrimary:hover { background: var(--color-primary-hover); }
 
-.about { text-align: left; border-top: 1px solid var(--color-border); padding-top: 16px; width: 100%; }
+.about {
+  text-align: left;
+  border-top: 1px solid var(--color-border);
+  padding-top: 16px;
+  width: 100%;
+}
 .aboutTitle { font-weight: 700; font-size: 13.5px; margin-bottom: 6px; }
-.aboutText { font-size: 13px; color: var(--color-text-secondary); line-height: 1.6; }
+.aboutText  { font-size: 13px; color: var(--color-text-secondary); line-height: 1.6; }
 
-.section { padding: 22px 24px; }
-.sectionTitle { font-size: 16px; font-weight: 700; margin-bottom: 16px; }
+/* Sections */
+.section { padding: 16px; }
+
+@media (min-width: 640px) {
+  .section { padding: 22px 24px; }
+}
+
+.sectionTitle { font-size: 15px; font-weight: 700; margin-bottom: 14px; }
+
+@media (min-width: 640px) {
+  .sectionTitle { font-size: 16px; margin-bottom: 16px; }
+}
 
 .serviceList { list-style: none; display: flex; flex-direction: column; gap: 10px; }
 .serviceItem {
-  display: flex; align-items: center; gap: 10px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
   font-size: 13.5px;
 }
 .servicePrice { margin-left: auto; font-weight: 600; color: var(--color-confirmed); font-size: 13px; }
 
-.reviewHeader { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px; }
-.ratingBig { display: flex; align-items: center; gap: 10px; }
-.ratingBigNum { font-size: 36px; font-weight: 800; line-height: 1; }
+/* Reviews */
+.reviewHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+  gap: 12px;
+}
 
-.distBars { display: flex; flex-direction: column; gap: 7px; margin-bottom: 20px; }
-.distRow { display: flex; align-items: center; gap: 8px; font-size: 12.5px; }
-.distStar { width: 24px; color: var(--color-text-secondary); flex-shrink: 0; }
+.ratingBig    { display: flex; align-items: center; gap: 10px; }
+.ratingBigNum { font-size: 32px; font-weight: 800; line-height: 1; }
+
+@media (min-width: 640px) {
+  .ratingBigNum { font-size: 36px; }
+}
+
+.distBars  { display: flex; flex-direction: column; gap: 6px; margin-bottom: 16px; }
+.distRow   { display: flex; align-items: center; gap: 8px; font-size: 12px; }
+.distStar  { width: 22px; color: var(--color-text-secondary); flex-shrink: 0; }
 .distTrack { flex: 1; height: 8px; background: var(--color-surface-2); border-radius: 4px; overflow: hidden; }
-.distFill { height: 100%; background: #F59E0B; border-radius: 4px; transition: width 0.4s; }
+.distFill  { height: 100%; background: #F59E0B; border-radius: 4px; transition: width 0.4s; }
 .distCount { width: 20px; text-align: right; color: var(--color-text-muted); }
 
-.reviewList { display: flex; flex-direction: column; gap: 14px; }
-.reviewCard { border-top: 1px solid var(--color-border); padding-top: 14px; }
-.reviewTop { display: flex; align-items: center; gap: 10px; margin-bottom: 6px; }
+.reviewList  { display: flex; flex-direction: column; gap: 14px; }
+.reviewCard  { border-top: 1px solid var(--color-border); padding-top: 14px; }
+.reviewTop   { display: flex; align-items: center; gap: 10px; margin-bottom: 6px; }
+
 .reviewerAvatar {
-  width: 32px; height: 32px; border-radius: 50%;
-  background: var(--color-primary-light); color: var(--color-primary);
-  font-size: 11px; font-weight: 700;
-  display: grid; place-items: center; flex-shrink: 0;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: var(--color-primary-light);
+  color: var(--color-primary);
+  font-size: 11px;
+  font-weight: 700;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
   text-transform: uppercase;
 }
+
+@media (min-width: 640px) {
+  .reviewerAvatar { width: 32px; height: 32px; }
+}
+
 .reviewerName { font-size: 13px; font-weight: 600; }
-.reviewTime { margin-left: auto; font-size: 11.5px; color: var(--color-text-muted); }
+.reviewTime   { margin-left: auto; font-size: 11.5px; color: var(--color-text-muted); white-space: nowrap; }
 .reviewComment { font-size: 13px; color: var(--color-text-secondary); line-height: 1.5; }
 
 .empty { font-size: 13px; color: var(--color-text-muted); }
 
 /* Book a Service button */
 .btnBookService {
-  display: flex; align-items: center; gap: 8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
   width: 100%;
   padding: 10px 18px;
   background: linear-gradient(135deg, var(--color-primary), #1E429F);
-  color: white; border: none;
+  color: white;
+  border: none;
   border-radius: var(--radius-sm);
-  font-size: 14px; font-weight: 700;
+  font-size: 14px;
+  font-weight: 700;
   justify-content: center;
   margin-top: 4px;
   transition: opacity 0.15s;
@@ -135,15 +251,37 @@
 
 /* Booking modal */
 .overlay {
-  position: fixed; inset: 0;
+  position: fixed;
+  inset: 0;
   background: rgba(0,0,0,0.55);
-  display: grid; place-items: center;
+  display: grid;
+  place-items: center;
   z-index: 200;
+  padding: 16px;
 }
 
-.modal { padding: 32px; width: 460px; max-width: 92vw; }
-.modalTitle { font-size: 20px; font-weight: 700; }
-.modalSub { color: var(--color-text-secondary); font-size: 13.5px; margin-top: 4px; margin-bottom: 20px; }
+.modal {
+  padding: 20px;
+  width: 100%;
+  max-width: 460px;
+}
+
+@media (min-width: 640px) {
+  .modal { padding: 32px; }
+}
+
+.modalTitle { font-size: 18px; font-weight: 700; }
+
+@media (min-width: 640px) {
+  .modalTitle { font-size: 20px; }
+}
+
+.modalSub {
+  color: var(--color-text-secondary);
+  font-size: 13.5px;
+  margin-top: 4px;
+  margin-bottom: 16px;
+}
 
 .modalError {
   background: var(--color-cancelled-bg);
@@ -151,54 +289,68 @@
   padding: 10px 14px;
   border-radius: var(--radius-sm);
   font-size: 13px;
-  margin-bottom: 16px;
+  margin-bottom: 14px;
 }
 
-.modalForm { display: flex; flex-direction: column; gap: 16px; }
-.modalLabel {
-  display: flex; flex-direction: column; gap: 6px;
-  font-size: 13.5px; font-weight: 600;
-}
+.modalForm  { display: flex; flex-direction: column; gap: 14px; }
+.modalLabel { display: flex; flex-direction: column; gap: 6px; font-size: 13.5px; font-weight: 600; }
+
 .modalInput {
   padding: 9px 12px;
   border: 1px solid var(--color-border);
   border-radius: var(--radius-sm);
-  font-size: 14px; outline: none;
+  font-size: 14px;
+  outline: none;
   background: var(--color-surface);
   color: var(--color-text-primary);
   font-family: inherit;
   transition: border-color 0.15s;
+  width: 100%;
 }
 .modalInput:focus { border-color: var(--color-primary); }
+
 .modalTextarea {
   padding: 10px 12px;
   border: 1px solid var(--color-border);
   border-radius: var(--radius-sm);
-  font-size: 14px; outline: none; resize: vertical;
+  font-size: 14px;
+  outline: none;
+  resize: vertical;
   background: var(--color-surface);
   color: var(--color-text-primary);
   font-family: inherit;
   transition: border-color 0.15s;
+  width: 100%;
 }
 .modalTextarea:focus { border-color: var(--color-primary); }
 
 .modalActions {
-  display: flex; gap: 10px; justify-content: flex-end;
-  margin-top: 20px;
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+  margin-top: 16px;
+  flex-wrap: wrap;
 }
+
 .modalBtnCancel {
-  padding: 9px 20px;
+  padding: 9px 18px;
   border: 1px solid var(--color-border);
-  background: none; border-radius: var(--radius-sm);
-  font-size: 14px; font-weight: 600;
+  background: none;
+  border-radius: var(--radius-sm);
+  font-size: 14px;
+  font-weight: 600;
   color: var(--color-text-secondary);
 }
 .modalBtnCancel:hover { background: var(--color-surface-2); }
+
 .modalBtnSubmit {
   padding: 9px 22px;
-  background: var(--color-primary); color: white;
-  border: none; border-radius: var(--radius-sm);
-  font-size: 14px; font-weight: 700;
+  background: var(--color-primary);
+  color: white;
+  border: none;
+  border-radius: var(--radius-sm);
+  font-size: 14px;
+  font-weight: 700;
   transition: background 0.15s;
 }
 .modalBtnSubmit:disabled { opacity: 0.55; cursor: not-allowed; }

@@ -4,9 +4,14 @@ import { useThemeStore } from '../../store/theme.store';
 import {
   LayoutDashboard, Search, CalendarDays, MessageSquare,
   Bookmark, User, Settings, LogOut, Briefcase, DollarSign, Users,
-  Sun, Moon
+  Sun, Moon, X
 } from 'lucide-react';
 import styles from './Sidebar.module.css';
+
+interface SidebarProps {
+  isOpen: boolean;
+  onClose: () => void;
+}
 
 const clientNav = [
   { to: '/dashboard',  icon: LayoutDashboard, label: 'Dashboard' },
@@ -29,7 +34,7 @@ const bottomNav = [
   { to: '/settings', icon: Settings, label: 'Settings' },
 ];
 
-export default function Sidebar() {
+export default function Sidebar({ isOpen, onClose }: SidebarProps) {
   const { user, logout } = useAuthStore();
   const { theme, toggleTheme } = useThemeStore();
   const navigate = useNavigate();
@@ -40,29 +45,55 @@ export default function Sidebar() {
   const initials = `${user?.first_name?.[0] || ''}${user?.last_name?.[0] || ''}`.toUpperCase() || 'U';
 
   return (
-    <aside className={styles.sidebar}>
+    <aside
+      className={`${styles.sidebar} ${isOpen ? styles.open : ''}`}
+      aria-label="Main navigation"
+    >
+      {/* ── Logo / Brand ── */}
       <div className={styles.logo}>
         <div className={styles.logoIcon}><Users size={20} /></div>
         <span className={styles.logoText}>Community Skills<br />Directory</span>
+
+        {/* Close button — only shown on mobile drawer */}
+        <button
+          className={styles.closeBtn}
+          onClick={onClose}
+          aria-label="Close navigation"
+        >
+          <X size={18} />
+        </button>
       </div>
 
+      {/* ── Main nav ── */}
       <nav className={styles.nav}>
         {nav.map(({ to, icon: Icon, label }) => (
           <NavLink
-            key={to} to={to}
-            className={({ isActive }) => `${styles.navItem} ${isActive ? styles.active : ''}`}
+            key={to}
+            to={to}
+            title={label}
+            className={({ isActive }) =>
+              `${styles.navItem} ${isActive ? styles.active : ''}`
+            }
           >
-            <Icon size={18} />
-            <span>{label}</span>
+            <Icon size={18} className={styles.navIcon} />
+            <span className={styles.navLabel}>{label}</span>
           </NavLink>
         ))}
       </nav>
 
+      {/* ── Bottom section ── */}
       <div className={styles.bottom}>
         {bottomNav.map(({ to, icon: Icon, label }) => (
-          <NavLink key={to} to={to}
-            className={({ isActive }) => `${styles.navItem} ${isActive ? styles.active : ''}`}>
-            <Icon size={18} /><span>{label}</span>
+          <NavLink
+            key={to}
+            to={to}
+            title={label}
+            className={({ isActive }) =>
+              `${styles.navItem} ${isActive ? styles.active : ''}`
+            }
+          >
+            <Icon size={18} className={styles.navIcon} />
+            <span className={styles.navLabel}>{label}</span>
           </NavLink>
         ))}
 
@@ -72,11 +103,17 @@ export default function Sidebar() {
           onClick={toggleTheme}
           title={theme === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
         >
-          {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
-          <span>{theme === 'dark' ? 'Light Mode' : 'Dark Mode'}</span>
+          {theme === 'dark'
+            ? <Sun size={18} className={styles.navIcon} />
+            : <Moon size={18} className={styles.navIcon} />
+          }
+          <span className={styles.navLabel}>
+            {theme === 'dark' ? 'Light Mode' : 'Dark Mode'}
+          </span>
         </button>
 
-        <div className={styles.userFooter}>
+        {/* User footer */}
+        <div className={styles.userFooter} title={`${user?.first_name} ${user?.last_name}`}>
           <div className={styles.userAvatar}>{initials}</div>
           <div className={styles.userInfo}>
             <span className={styles.userName}>
@@ -88,8 +125,13 @@ export default function Sidebar() {
           </div>
         </div>
 
-        <button className={`${styles.navItem} ${styles.logoutBtn}`} onClick={handleLogout}>
-          <LogOut size={18} /><span>Logout</span>
+        <button
+          className={`${styles.navItem} ${styles.logoutBtn}`}
+          onClick={handleLogout}
+          title="Logout"
+        >
+          <LogOut size={18} className={styles.navIcon} />
+          <span className={styles.navLabel}>Logout</span>
         </button>
       </div>
     </aside>

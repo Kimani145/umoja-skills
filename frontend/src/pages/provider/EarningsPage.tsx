@@ -102,6 +102,7 @@ export default function EarningsPage() {
             ) : (earnings?.breakdown || []).length === 0 ? (
               <p className={styles.empty}>Complete jobs to see your earnings history here.</p>
             ) : (
+              <div className={styles.tableWrap}>
               <table className={styles.table}>
                 <thead>
                   <tr>
@@ -133,6 +134,7 @@ export default function EarningsPage() {
                   ))}
                 </tbody>
               </table>
+              </div>
             )}
           </div>
         </div>
