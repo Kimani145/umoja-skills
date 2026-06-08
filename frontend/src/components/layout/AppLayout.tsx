@@ -5,7 +5,8 @@ import { LayoutContext } from './LayoutContext';
 import styles from './AppLayout.module.css';
 
 export default function AppLayout() {
-  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [sidebarOpen, setSidebarOpen]     = useState(false);
+  const [collapsed,   setCollapsed]       = useState(false);
   const location = useLocation();
 
   // Close the mobile drawer whenever the route changes
@@ -13,12 +14,21 @@ export default function AppLayout() {
     setSidebarOpen(false);
   }, [location.pathname]);
 
-  const handleMenuClick = () => setSidebarOpen(v => !v);
+  const handleMenuClick       = () => setSidebarOpen(v => !v);
+  const handleToggleCollapse  = () => setCollapsed(v => !v);
 
   return (
-    <LayoutContext.Provider value={{ onMenuClick: handleMenuClick }}>
+    <LayoutContext.Provider value={{
+      onMenuClick:      handleMenuClick,
+      collapsed,
+      onToggleCollapse: handleToggleCollapse,
+    }}>
       <div className={styles.shell}>
-        <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
+        <Sidebar
+          isOpen={sidebarOpen}
+          onClose={() => setSidebarOpen(false)}
+          collapsed={collapsed}
+        />
 
         {/* Backdrop — visible only on mobile when drawer is open */}
         {sidebarOpen && (
@@ -29,10 +39,11 @@ export default function AppLayout() {
           />
         )}
 
-        <div className={styles.main}>
-          {/* TopBar is rendered by each individual page (existing pattern).
-              The onMenuClick is provided via LayoutContext so pages can pass it
-              to their TopBar without prop-drilling. */}
+        {/* Main content — margin shifts based on sidebar mode */}
+        <div
+          className={styles.main}
+          data-collapsed={collapsed ? 'true' : 'false'}
+        >
           <div className={styles.content}>
             <Outlet />
           </div>

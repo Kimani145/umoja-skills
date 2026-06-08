@@ -6,47 +6,55 @@
 }
 
 /* ── Main content area ──
-   Mobile (default):   no left margin — sidebar is off-canvas
-   Tablet (≥768px):    margin = rail width (64px)
-   Desktop (≥1024px):  margin = full sidebar width (240px)
+   Mobile  (<768px):          margin-left: 0           (sidebar is off-canvas)
+   Tablet  (768–1023px):      margin-left: 64px         (icon rail, always shown)
+   Desktop (≥1024px):
+     default (expanded):      margin-left: 240px        (full sidebar)
+     collapsed:               margin-left: 64px         (collapsed to rail width)
 */
 .main {
   margin-left: 0;
   flex: 1;
   min-height: 100vh;
-  min-width: 0;          /* prevent flex child from overflowing */
+  min-width: 0;
   display: flex;
   flex-direction: column;
   background: var(--color-bg);
-  transition: margin-left var(--transition), background var(--transition);
+  /* Smooth transition when sidebar collapses/expands on desktop */
+  transition:
+    margin-left 0.28s cubic-bezier(0.4, 0, 0.2, 1),
+    background var(--transition);
 }
 
+/* Tablet: always push content past the 64px icon rail */
 @media (min-width: 768px) {
-  .main {
-    margin-left: var(--sidebar-rail-width); /* 64px rail */
-  }
+  .main { margin-left: var(--sidebar-rail-width); }
 }
 
+/* Desktop: full sidebar by default */
 @media (min-width: 1024px) {
-  .main {
-    margin-left: var(--sidebar-width); /* 240px full */
+  .main { margin-left: var(--sidebar-width); }
+
+  /* When sidebar is collapsed on desktop → shrink to rail width */
+  .main[data-collapsed="true"] {
+    margin-left: var(--sidebar-rail-width);
   }
 }
 
-/* ── Page content wrapper (scrollable area below topbar) ── */
+/* ── Page content wrapper ── */
 .content {
   flex: 1;
   overflow-y: auto;
   overflow-x: hidden;
 }
 
-/* ── Backdrop (mobile only, when drawer is open) ── */
+/* ── Mobile backdrop ── */
 .backdrop {
   display: block;
   position: fixed;
   inset: 0;
   background: rgba(0, 0, 0, 0.55);
-  z-index: 150; /* below sidebar (z-index: 200) but above content */
+  z-index: 150;
   animation: fadeIn 0.2s ease;
 }
 
@@ -56,6 +64,5 @@
 }
 
 @media (min-width: 768px) {
-  /* Backdrop never needed on tablet/desktop — sidebar is always visible */
   .backdrop { display: none; }
 }

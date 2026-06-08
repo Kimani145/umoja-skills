@@ -1,13 +1,14 @@
 /* ═══════════════════════════════════════════════════════════
-   SIDEBAR — Three-mode responsive component
-   Mobile  (<768px):   Hidden off-canvas drawer, slides in when .open
-   Tablet  (768–1023): Fixed narrow icon-only rail (64px)
-   Desktop (≥1024px):  Fixed full sidebar (240px) with labels
+   SIDEBAR — Three-mode responsive + collapsible desktop
+   Mobile   (<768px):           Hidden drawer, slides in via .open
+   Tablet   (768–1023px):       Fixed 64px icon-only rail (always shown)
+   Desktop  (≥1024px) expanded: Fixed 240px full sidebar
+   Desktop  (≥1024px) .collapsed: Fixed 64px icon-only rail (user toggled)
 ═══════════════════════════════════════════════════════════ */
 
 /* ── Base (Mobile-first: hidden off-canvas drawer) ── */
 .sidebar {
-  width: var(--sidebar-width); /* 240px — full drawer on mobile too */
+  width: var(--sidebar-width);
   height: 100vh;
   background: var(--sidebar-bg);
   display: flex;
@@ -16,39 +17,40 @@
   left: 0;
   top: 0;
   z-index: 200;
-  /* Slide off-screen by default on mobile */
   transform: translateX(-100%);
   transition:
     transform 0.28s cubic-bezier(0.4, 0, 0.2, 1),
-    width 0.22s ease,
+    width 0.28s cubic-bezier(0.4, 0, 0.2, 1),
     background var(--transition);
   overflow: hidden;
-  will-change: transform;
+  will-change: transform, width;
 }
 
-/* Mobile drawer open state */
+/* Mobile: open drawer */
 .sidebar.open {
   transform: translateX(0);
 }
 
-/* ── Tablet (768px–1023px): icon-only rail ── */
+/* ── Tablet (768–1023px): always-visible 64px icon rail ── */
 @media (min-width: 768px) {
   .sidebar {
-    transform: translateX(0); /* always visible */
-    width: var(--sidebar-rail-width); /* 64px — icon only */
-    overflow: visible; /* allow tooltip overflow */
-  }
-
-  .sidebar.open {
     transform: translateX(0);
+    width: var(--sidebar-rail-width);
+    overflow: visible; /* allow tooltip overflow */
   }
 }
 
-/* ── Desktop (≥1024px): full sidebar ── */
+/* ── Desktop expanded (≥1024px): full 240px sidebar ── */
 @media (min-width: 1024px) {
   .sidebar {
-    width: var(--sidebar-width); /* 240px — full with labels */
+    width: var(--sidebar-width);
     overflow: hidden;
+  }
+
+  /* Desktop collapsed → shrink back to 64px rail */
+  .sidebar.collapsed {
+    width: var(--sidebar-rail-width);
+    overflow: visible;
   }
 }
 
@@ -63,6 +65,7 @@
   border-bottom: 1px solid rgba(255,255,255,0.06);
   min-height: 64px;
   flex-shrink: 0;
+  overflow: hidden;
 }
 
 .logoIcon {
@@ -74,7 +77,6 @@
   place-items: center;
   color: white;
   flex-shrink: 0;
-  transition: transform 0.2s;
 }
 
 .logoText {
@@ -84,9 +86,11 @@
   line-height: 1.4;
   white-space: nowrap;
   overflow: hidden;
+  opacity: 1;
+  transition: opacity 0.2s ease, width 0.28s;
 }
 
-/* Close button — only for mobile drawer */
+/* Close button — mobile only */
 .closeBtn {
   margin-left: auto;
   background: none;
@@ -103,14 +107,19 @@
 }
 .closeBtn:hover { opacity: 1; color: var(--sidebar-text-active); }
 
-/* Hide close btn on tablet/desktop — drawer never closes on those */
+/* Hide close button on tablet/desktop */
 @media (min-width: 768px) {
   .closeBtn { display: none; }
 }
 
-/* Hide text/logo-text on rail */
+/* Hide logoText in rail mode (tablet OR desktop-collapsed) */
 @media (min-width: 768px) and (max-width: 1023px) {
   .logoText { display: none; }
+}
+
+/* Desktop collapsed */
+@media (min-width: 1024px) {
+  .sidebar.collapsed .logoText { display: none; }
 }
 
 /* ─────────────────────────────────────────── */
@@ -156,6 +165,7 @@
   white-space: nowrap;
   overflow: hidden;
   position: relative;
+  cursor: pointer;
 }
 
 .navItem:hover {
@@ -169,19 +179,25 @@
   font-weight: 600;
 }
 
-/* Rail mode: center icons, hide labels */
+/* ── Rail mode styles (tablet OR desktop-collapsed) ──
+   Centre the icon, hide labels, show CSS tooltips
+*/
+.railItem {
+  justify-content: center;
+  padding: 10px;
+  gap: 0;
+}
+
+/* Tablet: all nav items are rail-style */
 @media (min-width: 768px) and (max-width: 1023px) {
   .navItem {
     justify-content: center;
     padding: 10px;
     gap: 0;
   }
+  .navLabel { display: none; }
 
-  .navLabel {
-    display: none;
-  }
-
-  /* Tooltip on hover — rail mode */
+  /* CSS tooltip via ::after */
   .navItem::after {
     content: attr(title);
     position: absolute;
@@ -201,37 +217,67 @@
     box-shadow: var(--shadow-md);
     z-index: 300;
   }
+  .navItem:hover::after { opacity: 1; }
+}
 
-  .navItem:hover::after {
-    opacity: 1;
+/* Desktop collapsed: same rail treatment */
+@media (min-width: 1024px) {
+  .sidebar.collapsed .navItem {
+    justify-content: center;
+    padding: 10px;
+    gap: 0;
   }
+  .sidebar.collapsed .navLabel { display: none; }
+
+  .sidebar.collapsed .navItem::after {
+    content: attr(title);
+    position: absolute;
+    left: calc(100% + 10px);
+    top: 50%;
+    transform: translateY(-50%);
+    background: #1E2235;
+    color: #E8EAFF;
+    font-size: 12px;
+    font-weight: 500;
+    padding: 5px 10px;
+    border-radius: var(--radius-sm);
+    white-space: nowrap;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.15s ease;
+    box-shadow: var(--shadow-md);
+    z-index: 300;
+  }
+  .sidebar.collapsed .navItem:hover::after { opacity: 1; }
 }
 
-.navIcon {
-  flex-shrink: 0;
-}
-
-.navLabel {
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
+.navIcon  { flex-shrink: 0; }
+.navLabel { overflow: hidden; text-overflow: ellipsis; }
 
 /* ─────────────────────────────────────────── */
 /* Special nav items                           */
 /* ─────────────────────────────────────────── */
-.themeToggle {
-  color: var(--sidebar-text);
-}
-.themeToggle:hover {
-  color: var(--color-primary);
-}
+.themeToggle { color: var(--sidebar-text); }
+.themeToggle:hover { color: var(--color-primary); }
 
-.logoutBtn {
-  color: #F87171 !important;
-}
+.logoutBtn { color: #F87171 !important; }
 .logoutBtn:hover {
   background: rgba(248,113,113,0.1) !important;
   color: #F87171 !important;
+}
+
+/* ── Desktop-only collapse button ── */
+.collapseBtn {
+  color: var(--sidebar-text);
+  border-top: 1px solid rgba(255,255,255,0.06);
+  margin-top: 4px;
+  padding-top: 12px;
+}
+.collapseBtn:hover { color: var(--color-primary); }
+
+/* Hide collapse button on mobile and tablet */
+@media (max-width: 1023px) {
+  .collapseBtn { display: none; }
 }
 
 /* ─────────────────────────────────────────── */
@@ -282,7 +328,7 @@
   color: var(--sidebar-text);
 }
 
-/* Rail mode: center the avatar, hide text */
+/* Rail mode: centre avatar, hide text */
 @media (min-width: 768px) and (max-width: 1023px) {
   .userFooter {
     justify-content: center;
@@ -290,4 +336,14 @@
     border: none;
   }
   .userInfo { display: none; }
+}
+
+/* Desktop collapsed */
+@media (min-width: 1024px) {
+  .sidebar.collapsed .userFooter {
+    justify-content: center;
+    padding: 10px;
+    border: none;
+  }
+  .sidebar.collapsed .userInfo { display: none; }
 }

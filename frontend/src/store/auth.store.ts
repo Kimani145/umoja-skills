@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { User } from '../types';
+import { User, UserRole } from '../types';
 
 interface AuthState {
   user: User | null;
@@ -42,12 +42,15 @@ export const useAuthStore = create<AuthState>((set) => ({
     if (import.meta.env.DEV && token === 'mock-ui-test') {
       set({
         user: {
-          id: 1,
+          id: '1',
           first_name: 'Test',
           last_name: 'User',
           email: 'test@umoja.com',
-          role: 'CLIENT' as any,
+          role: 'CLIENT' as UserRole,
           phone: '0712345678',
+          avatar: null,
+          location: 'Nairobi',
+          is_verified: false,
         },
         isAuthenticated: true,
         isHydrating: false,
