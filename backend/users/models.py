@@ -1,4 +1,7 @@
 import uuid
+import secrets
+from django.utils import timezone
+from datetime import timedelta
 from django.db import models
 from django.contrib.auth.models import AbstractUser, BaseUserManager
 from django.core.validators import MinValueValidator, MaxValueValidator
@@ -97,3 +100,31 @@ class SavedProvider(models.Model):
 
     def __str__(self):
         return f"{self.user.email} → {self.service.title}"
+
+
+class PasswordResetToken(models.Model):
+    """Single-use password reset token, expires after 1 hour."""
+    user  = models.ForeignKey(User, on_delete=models.CASCADE, related_name='reset_tokens')
+    token = models.CharField(max_length=64, unique=True, db_index=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    used = models.BooleanField(default=False)
+
+    class Meta:
+        ordering = ['-created_at']
+
+    @classmethod
+    def create_for_user(cls, user):
+        """Invalidate any existing tokens for the user, generate a new one."""
+        cls.objects.filter(user=user, used=False).update(used=True)
+        token = secrets.token_urlsafe(48)
+        return cls.objects.create(user=user, token=token)
+
+    def is_valid(self):
+        """Token must be unused and less than 1 hour old."""
+        return (
+            not self.used and
+            self.created_at >= timezone.now() - timedelta(hours=1)
+        )
+
+    def __str__(self):
+        return f"Reset token for {self.user.email} (used={self.used})"

@@ -4,6 +4,8 @@ import AppLayout from '../components/layout/AppLayout';
 
 import LoginPage from '../pages/auth/LoginPage';
 import RegisterPage from '../pages/auth/RegisterPage';
+import ForgotPasswordPage from '../pages/auth/ForgotPasswordPage';
+import ResetPasswordPage from '../pages/auth/ResetPasswordPage';
 import DashboardRouter from '../pages/DashboardRouter';
 import SearchPage from '../pages/client/SearchPage';
 import ProviderProfilePage from '../pages/client/ProviderProfilePage';
@@ -16,8 +18,10 @@ import AddServicePage from '../pages/provider/AddServicePage';
 import EarningsPage from '../pages/provider/EarningsPage';
 
 export const router = createBrowserRouter([
-  { path: '/login', element: <LoginPage /> },
-  { path: '/register', element: <RegisterPage /> },
+  { path: '/login',           element: <LoginPage /> },
+  { path: '/register',        element: <RegisterPage /> },
+  { path: '/forgot-password', element: <ForgotPasswordPage /> },
+  { path: '/reset-password',  element: <ResetPasswordPage /> },
   {
     path: '/',
     element: <ProtectedRoute><AppLayout /></ProtectedRoute>,

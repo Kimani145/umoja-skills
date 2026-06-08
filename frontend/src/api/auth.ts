@@ -19,4 +19,11 @@ export const authApi = {
   getMe: () => api.get<User>('/auth/me/'),
 
   updateMe: (data: Partial<User>) => api.patch<User>('/auth/me/', data),
+
+  passwordResetRequest: (email: string) =>
+    api.post<{ detail: string }>('/auth/password-reset/', { email }),
+
+  passwordResetConfirm: (token: string, password: string) =>
+    api.post<{ detail: string }>('/auth/password-reset/confirm/', { token, password }),
 };
+

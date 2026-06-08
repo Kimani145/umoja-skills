@@ -6,10 +6,13 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth import authenticate
 from django.db import transaction
 from django.utils import timezone
-from .models import User, ProviderProfile, SavedProvider
+from django.core.mail import send_mail
+from django.conf import settings as django_settings
+from .models import User, ProviderProfile, SavedProvider, PasswordResetToken
 from .serializers import UserSerializer, RegisterSerializer, LoginSerializer
 from django.db.models.functions import TruncMonth
 from django.db.models import Sum, Count
+
 
 
 class RegisterView(APIView):
@@ -253,3 +256,105 @@ class EarningsBreakdownView(APIView):
             'breakdown': breakdown[:50],
             'monthly': monthly_data[:12],
         })
+
+
+class PasswordResetRequestView(APIView):
+    """
+    POST /api/auth/password-reset/
+    Body: { "email": "user@example.com" }
+    Always returns 200 to prevent email enumeration.
+    If the email exists, sends a reset link.
+    """
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        email = request.data.get('email', '').strip().lower()
+        generic_response = Response(
+            {'detail': 'If an account with that email exists, a reset link has been sent.'},
+            status=status.HTTP_200_OK,
+        )
+
+        try:
+            user = User.objects.get(email=email)
+        except User.DoesNotExist:
+            return generic_response
+
+        # Create the token
+        reset = PasswordResetToken.create_for_user(user)
+
+        # Build the reset URL (frontend)
+        frontend_url = getattr(django_settings, 'FRONTEND_URL', 'http://localhost:5173')
+        reset_url = f"{frontend_url}/reset-password?token={reset.token}"
+
+        # Send the email
+        try:
+            send_mail(
+                subject='Reset your Umoja Skills password',
+                message=(
+                    f"Hi {user.first_name},\n\n"
+                    f"We received a request to reset your Umoja Skills password.\n\n"
+                    f"Click the link below to set a new password. "
+                    f"This link expires in 1 hour.\n\n"
+                    f"{reset_url}\n\n"
+                    f"If you didn't request this, you can safely ignore this email.\n\n"
+                    f"– The Umoja Skills Team"
+                ),
+                from_email=getattr(django_settings, 'DEFAULT_FROM_EMAIL', 'noreply@umoja-skills.com'),
+                recipient_list=[user.email],
+                fail_silently=False,
+            )
+        except Exception:
+            # Log but don't expose the error to the client
+            import logging
+            logging.getLogger(__name__).exception("Failed to send password reset email to %s", email)
+
+        return generic_response
+
+
+class PasswordResetConfirmView(APIView):
+    """
+    POST /api/auth/password-reset/confirm/
+    Body: { "token": "...", "password": "NewPass1" }
+    Validates the token and sets the new password.
+    """
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        token_str = request.data.get('token', '').strip()
+        new_password = request.data.get('password', '')
+
+        if not token_str or not new_password:
+            return Response(
+                {'detail': 'token and password are required.'},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        if len(new_password) < 8:
+            return Response(
+                {'detail': 'Password must be at least 8 characters.'},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        try:
+            reset = PasswordResetToken.objects.select_related('user').get(token=token_str)
+        except PasswordResetToken.DoesNotExist:
+            return Response(
+                {'detail': 'This reset link is invalid or has expired.'},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        if not reset.is_valid():
+            return Response(
+                {'detail': 'This reset link has expired or already been used. Please request a new one.'},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        user = reset.user
+        user.set_password(new_password)
+        user.save(update_fields=['password'])
+
+        reset.used = True
+        reset.save(update_fields=['used'])
+
+        return Response({'detail': 'Password updated successfully. You can now sign in.'})
+

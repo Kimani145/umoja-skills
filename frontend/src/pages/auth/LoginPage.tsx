@@ -85,6 +85,16 @@ export default function LoginPage() {
             </label>
           </div>
 
+          {/* Forgot password link — right-aligned below the field */}
+          <div style={{ textAlign: 'right', marginTop: -6 }}>
+            <Link
+              to="/forgot-password"
+              style={{ fontSize: 13, color: 'var(--color-primary)', fontWeight: 600 }}
+            >
+              Forgot password?
+            </Link>
+          </div>
+
           <button className={styles.btn} type="submit" disabled={loading}>
             {loading ? 'Signing in…' : 'Sign in'}
           </button>
@@ -92,6 +102,11 @@ export default function LoginPage() {
 
         <p className={styles.footer}>
           Don't have an account? <Link to="/register">Create one</Link>
+        </p>
+        <p className={styles.footer} style={{ marginTop: 6 }}>
+          <Link to="/forgot-password" style={{ color: 'var(--color-text-muted)', fontSize: 12.5 }}>
+            Forgot your password?
+          </Link>
         </p>
       </div>
     </div>
