@@ -1,3 +1,5 @@
+import django_filters
+from django.db.models import Q
 from rest_framework import viewsets, generics, filters, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -7,6 +9,23 @@ from django_filters.rest_framework import DjangoFilterBackend
 from .models import ServiceCategory, ServiceListing
 from .serializers import ServiceCategorySerializer, ServiceListingSerializer
 from users.serializers import UserSerializer
+
+
+class ServiceListingFilter(django_filters.FilterSet):
+    category = django_filters.CharFilter(field_name='category__slug')
+    service_area = django_filters.CharFilter(method='filter_service_area')
+
+    class Meta:
+        model = ServiceListing
+        fields = ['category', 'service_area']
+
+    def filter_service_area(self, queryset, name, value):
+        if not value:
+            return queryset
+        # Match case-insensitively in either the listing's service area or the provider's location
+        return queryset.filter(
+            Q(service_area__icontains=value) | Q(provider__location__icontains=value)
+        )
 
 
 class ServiceCategoryViewSet(viewsets.ReadOnlyModelViewSet):
@@ -20,7 +39,7 @@ class ServiceListingViewSet(viewsets.ModelViewSet):
     serializer_class = ServiceListingSerializer
     permission_classes = [IsAuthenticated]
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
-    filterset_fields = ['category__slug', 'service_area']
+    filterset_class = ServiceListingFilter
     search_fields = ['title', 'description', 'service_area']
     ordering_fields = ['price_kes', 'created_at']
     ordering = ['-created_at']

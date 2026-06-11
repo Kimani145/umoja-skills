@@ -25,5 +25,10 @@ export const authApi = {
 
   passwordResetConfirm: (token: string, password: string) =>
     api.post<{ detail: string }>('/auth/password-reset/confirm/', { token, password }),
+
+  requestVerification: (data: FormData) =>
+    api.post<{ detail: string; user: User }>('/auth/verify-profile/', data, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    }),
 };
 

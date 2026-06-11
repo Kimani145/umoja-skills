@@ -38,25 +38,6 @@ export const useAuthStore = create<AuthState>((set) => ({
       set({ isAuthenticated: false, user: null });
       return;
     }
-    // DEV-ONLY: mock bypass for UI/responsive testing without a backend
-    if (import.meta.env.DEV && token === 'mock-ui-test') {
-      set({
-        user: {
-          id: '1',
-          first_name: 'Test',
-          last_name: 'User',
-          email: 'test@umoja.com',
-          role: 'CLIENT' as UserRole,
-          phone: '0712345678',
-          avatar: null,
-          location: 'Nairobi',
-          is_verified: false,
-        },
-        isAuthenticated: true,
-        isHydrating: false,
-      });
-      return;
-    }
     set({ isHydrating: true });
     try {
       // Dynamically import to avoid circular deps

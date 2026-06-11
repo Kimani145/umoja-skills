@@ -8,8 +8,8 @@ from django.db import transaction
 from django.utils import timezone
 from django.core.mail import send_mail
 from django.conf import settings as django_settings
-from .models import User, ProviderProfile, SavedProvider, PasswordResetToken
-from .serializers import UserSerializer, RegisterSerializer, LoginSerializer
+from .models import User, ProviderProfile, SavedProvider, PasswordResetToken, VerificationRequest
+from .serializers import UserSerializer, RegisterSerializer, LoginSerializer, VerificationRequestSerializer
 from django.db.models.functions import TruncMonth
 from django.db.models import Sum, Count
 
@@ -71,6 +71,39 @@ class UserMeView(APIView):
             serializer.save()
             return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class VerifyProfileView(APIView):
+    """
+    POST /api/auth/verify-profile/
+    Allows a user to submit a verification request.
+    In testing/dev environment, we auto-approve the request so their profile becomes verified immediately.
+    """
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        serializer = VerificationRequestSerializer(data=request.data)
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        # Create verification request record
+        verification_req = serializer.save(user=request.user)
+
+        # Auto-approve the request for demonstration/beta testing
+        verification_req.status = 'APPROVED'
+        verification_req.save()
+
+        # Update the user's is_verified flag
+        user = request.user
+        user.is_verified = True
+        user.save(update_fields=['is_verified'])
+
+        # Return updated user details
+        return Response({
+            'detail': 'Profile verification request submitted and approved.',
+            'user': UserSerializer(user).data
+        }, status=status.HTTP_200_OK)
+
 
 
 class ClientDashboardView(APIView):

@@ -10,7 +10,7 @@ from django.http import JsonResponse
 from rest_framework import routers
 
 from users.views import (
-    RegisterView, LoginView, UserMeView,
+    RegisterView, LoginView, UserMeView, VerifyProfileView,
     ClientDashboardView, ProviderDashboardView,
     SavedProviderView, EarningsBreakdownView,
     PasswordResetRequestView, PasswordResetConfirmView,
@@ -49,6 +49,7 @@ urlpatterns = [
     path('api/auth/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('api/auth/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('api/auth/me/', UserMeView.as_view(), name='user_me'),
+    path('api/auth/verify-profile/', VerifyProfileView.as_view(), name='verify_profile'),
     path('api/auth/password-reset/', PasswordResetRequestView.as_view(), name='password_reset_request'),
     path('api/auth/password-reset/confirm/', PasswordResetConfirmView.as_view(), name='password_reset_confirm'),
 

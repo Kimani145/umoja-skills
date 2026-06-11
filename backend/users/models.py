@@ -128,3 +128,32 @@ class PasswordResetToken(models.Model):
 
     def __str__(self):
         return f"Reset token for {self.user.email} (used={self.used})"
+
+
+class VerificationRequest(models.Model):
+    DOCUMENT_CHOICES = (
+        ('NATIONAL_ID', 'National ID'),
+        ('PASSPORT', 'Passport'),
+        ('BUSINESS_PERMIT', 'Business Permit'),
+    )
+    STATUS_CHOICES = (
+        ('PENDING', 'Pending'),
+        ('APPROVED', 'Approved'),
+        ('REJECTED', 'Rejected'),
+    )
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='verification_requests')
+    document_type = models.CharField(max_length=20, choices=DOCUMENT_CHOICES)
+    document_number = models.CharField(max_length=50)
+    document_image = models.ImageField(upload_to='verification_docs/', null=True, blank=True)
+    status = models.CharField(max_length=15, choices=STATUS_CHOICES, default='PENDING', db_index=True)
+    rejection_reason = models.TextField(blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"{self.user.email} - {self.document_type} ({self.status})"
+

@@ -3,7 +3,7 @@ from rest_framework import serializers
 from django.contrib.auth import authenticate
 from django.core.validators import validate_email
 from django.core.exceptions import ValidationError as DjangoValidationError
-from .models import User
+from .models import User, VerificationRequest
 
 # ---------------------------------------------------------------------------
 # Helpers
@@ -152,3 +152,11 @@ class LoginSerializer(serializers.Serializer):
             raise serializers.ValidationError('Account is disabled.')
         data['user'] = user
         return data
+
+
+class VerificationRequestSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = VerificationRequest
+        fields = ('id', 'document_type', 'document_number', 'document_image', 'status', 'created_at')
+        read_only_fields = ('id', 'status', 'created_at')
+
