@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 // Ensure the configured URL always ends with /api to prevent 404s
-const rawUrl = import.meta.env.VITE_API_URL || '/api';
+const rawUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000/api';
 const baseURL = rawUrl.replace(/\/+$/, '').endsWith('api')
   ? rawUrl.replace(/\/+$/, '')
   : `${rawUrl.replace(/\/+$/, '')}/api`;
