@@ -45,9 +45,8 @@ class ServiceListingViewSet(viewsets.ModelViewSet):
     ordering = ['-created_at']
 
     def get_queryset(self):
-        return ServiceListing.objects.filter(
-            is_active=True
-        ).select_related('provider', 'provider__provider_profile', 'category')
+        # Temporarily dropping .filter(is_active=True) to test if all test providers appear
+        return ServiceListing.objects.all().select_related('provider', 'provider__provider_profile', 'category')
 
     def get_permissions(self):
         if self.action in ['list', 'retrieve']:

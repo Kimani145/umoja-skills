@@ -130,9 +130,7 @@ class ClientDashboardView(APIView):
         provider_count = User.objects.filter(role='PROVIDER').count()
         service_count = ServiceListing.objects.filter(is_active=True).count()
 
-        recommended = ServiceListing.objects.filter(
-            is_active=True
-        ).select_related('provider', 'category').order_by('-created_at')[:6]
+        recommended = ServiceListing.objects.all().select_related('provider', 'category').order_by('-created_at')[:6]
 
         recent_bookings = Booking.objects.filter(
             client=user
