@@ -24,7 +24,7 @@
 }
 .sidebarTitle { font-size: 16px; font-weight: 700; }
 
-.convList { flex: 1; overflow-y: auto; }
+.convList { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; }
 
 .convItem {
   display: flex; align-items: flex-start; gap: 12px;
@@ -93,7 +93,7 @@
 
 /* ── Messages ── */
 .messages {
-  flex: 1; overflow-y: auto;
+  flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch;
   padding: 16px 20px;
   display: flex; flex-direction: column; gap: 8px;
 }
