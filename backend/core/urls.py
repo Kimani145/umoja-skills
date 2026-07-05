@@ -38,7 +38,7 @@ router.register(
 )
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
+    path('umoja-mgmt/', admin.site.urls),
 
     # Health check
     path('api/health/', health, name='health'),

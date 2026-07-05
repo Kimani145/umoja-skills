@@ -13,10 +13,12 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 load_dotenv(BASE_DIR / '.env')
 
 # ── Security ──────────────────────────────────────────────────────────────────
-SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-dev-key-change-in-production')
-DEBUG = os.environ.get('DEBUG', 'True') == 'True'
+SECRET_KEY = os.environ.get('SECRET_KEY', '')
+if not SECRET_KEY:
+    raise ValueError("SECRET_KEY environment variable is not set.")
+DEBUG = os.environ.get('DEBUG', 'False') == 'True'
 
-ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', '*').split(',')
+ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', 'localhost,127.0.0.1').split(',')
 # Render injects RENDER_EXTERNAL_HOSTNAME automatically
 RENDER_HOST = os.environ.get('RENDER_EXTERNAL_HOSTNAME', '')
 if RENDER_HOST and RENDER_HOST not in ALLOWED_HOSTS:
@@ -33,6 +35,7 @@ INSTALLED_APPS = [
 
     'rest_framework',
     'rest_framework_simplejwt',
+    'rest_framework_simplejwt.token_blacklist',
     'corsheaders',
     'django_filters',
     'storages',
@@ -78,10 +81,11 @@ WSGI_APPLICATION = 'core.wsgi.application'
 
 # ── Database ──────────────────────────────────────────────────────────────────
 DATABASES = {
-    'default': dj_database_url.parse(
-        'postgresql://postgres.smfurojgloigggjykmql:UmojaSkills%40001@aws-1-eu-central-1.pooler.supabase.com:5432/postgres',
+    'default': dj_database_url.config(
+        env='DATABASE_URL',
         conn_max_age=600,
         conn_health_checks=True,
+        ssl_require=not DEBUG,
     )
 }
 
@@ -137,13 +141,21 @@ REST_FRAMEWORK = {
 }
 
 SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(hours=24),
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=30),
     'REFRESH_TOKEN_LIFETIME': timedelta(days=7),
+    'ROTATE_REFRESH_TOKENS': True,
+    'BLACKLIST_AFTER_ROTATION': True,
     'ALGORITHM': 'HS256',
 }
 
 # ── CORS ──────────────────────────────────────────────────────────────────────
-CORS_ALLOW_ALL_ORIGINS = True
+if DEBUG:
+    CORS_ALLOW_ALL_ORIGINS = True
+else:
+    CORS_ALLOWED_ORIGINS = [
+        os.environ.get('FRONTEND_URL', '').strip(),
+    ]
+    CORS_ALLOWED_ORIGINS = [url for url in CORS_ALLOWED_ORIGINS if url]
 CORS_ALLOW_CREDENTIALS = False
 
 

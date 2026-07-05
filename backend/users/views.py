@@ -86,22 +86,14 @@ class VerifyProfileView(APIView):
         if not serializer.is_valid():
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-        # Create verification request record
+        # Create verification request record (stays PENDING for admin review)
         verification_req = serializer.save(user=request.user)
 
-        # Auto-approve the request for demonstration/beta testing
-        verification_req.status = 'APPROVED'
-        verification_req.save()
-
-        # Update the user's is_verified flag
-        user = request.user
-        user.is_verified = True
-        user.save(update_fields=['is_verified'])
-
-        # Return updated user details
         return Response({
-            'detail': 'Profile verification request submitted and approved.',
-            'user': UserSerializer(user).data
+            'detail': 'Verification request submitted successfully. '
+                      'Our team will review it within 24-48 hours.',
+            'request_id': str(verification_req.id),
+            'status': 'PENDING',
         }, status=status.HTTP_200_OK)
 
 
