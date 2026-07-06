@@ -154,8 +154,13 @@ if DEBUG:
 else:
     CORS_ALLOWED_ORIGINS = [
         os.environ.get('FRONTEND_URL', '').strip(),
+        os.environ.get('VERCEL_FRONTEND_URL', '').strip(),
+        'https://umoja-skills.vercel.app',
     ]
-    CORS_ALLOWED_ORIGINS = [url for url in CORS_ALLOWED_ORIGINS if url]
+    CORS_ALLOWED_ORIGINS = [url.rstrip('/') for url in CORS_ALLOWED_ORIGINS if url]
+    CORS_ALLOWED_ORIGIN_REGEXES = [
+        r"^https://umoja-skills-.*\.vercel\.app$",
+    ]
 CORS_ALLOW_CREDENTIALS = False
 
 
