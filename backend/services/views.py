@@ -45,8 +45,8 @@ class ServiceListingViewSet(viewsets.ModelViewSet):
     ordering = ['-created_at']
 
     def get_queryset(self):
-        # Temporarily dropping .filter(is_active=True) to test if all test providers appear
-        return ServiceListing.objects.all().select_related('provider', 'provider__provider_profile', 'category')
+        # Exclude listings from deactivated/suspended providers
+        return ServiceListing.objects.filter(provider__is_active=True).select_related('provider', 'provider__provider_profile', 'category')
 
     def get_permissions(self):
         if self.action in ['list', 'retrieve']:
@@ -84,11 +84,12 @@ class ProviderProfileView(APIView):
     def get(self, request, user_id):
         from users.models import User
         try:
+            # Ensure the provider is active / not suspended
             user = User.objects.select_related('provider_profile').get(
-                id=user_id, role='PROVIDER'
+                id=user_id, role='PROVIDER', is_active=True
             )
         except User.DoesNotExist:
-            return Response({'detail': 'Provider not found.'}, status=status.HTTP_404_NOT_FOUND)
+            return Response({'detail': 'Provider not found or suspended.'}, status=status.HTTP_404_NOT_FOUND)
 
         services = ServiceListing.objects.filter(
             provider=user, is_active=True

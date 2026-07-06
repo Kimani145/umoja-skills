@@ -1,7 +1,9 @@
 import { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation } from '@tanstack/react-query';
-import { MapPin, Phone, MessageSquare, CheckCircle, ChevronLeft, CalendarCheck } from 'lucide-react';
+import { MapPin, Phone, MessageSquare, CheckCircle, ChevronLeft, CalendarCheck, ShieldAlert } from 'lucide-react';
+import { useAuthStore } from '../../store/auth.store';
+import { reportAccount } from '../../api/reports';
 import TopBar from '../../components/layout/TopBar';
 import StarRating from '../../components/ui/StarRating';
 import Skeleton from '../../components/ui/Skeleton';
@@ -17,6 +19,8 @@ export default function ProviderProfilePage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [bookingOpen, setBookingOpen] = useState(false);
+  const [reportOpen, setReportOpen] = useState(false);
+  const { isAuthenticated, user: currentUser } = useAuthStore();
 
   const { data: profile, isLoading } = useQuery({
     queryKey: ['providerProfile', id],
@@ -112,6 +116,11 @@ export default function ProviderProfilePage() {
                 </button>
                 {profile.services?.[0] && (
                   <SaveButton serviceId={profile.services[0].id} size={15} showLabel />
+                )}
+                {isAuthenticated && currentUser && currentUser.id !== user.id && (
+                  <button className={styles.btnReport} onClick={() => setReportOpen(true)}>
+                    <ShieldAlert size={15} /> Report
+                  </button>
                 )}
               </div>
 
@@ -222,6 +231,18 @@ export default function ProviderProfilePage() {
           onSuccess={() => navigate('/bookings')}
         />
       )}
+
+      {/* Report modal */}
+      {reportOpen && (
+        <ReportModal
+          reportedUser={user}
+          onClose={() => setReportOpen(false)}
+          onSuccess={() => {
+            setReportOpen(false);
+            alert('Thank you. The report has been submitted to the admin team for review.');
+          }}
+        />
+      )}
     </div>
   );
 }
@@ -329,3 +350,108 @@ function BookingModal({
     </div>
   );
 }
+
+// ── ReportModal ────────────────────────────────────────────────────────────────
+
+function ReportModal({
+  reportedUser,
+  onClose,
+  onSuccess,
+}: {
+  reportedUser: any;
+  onClose: () => void;
+  onSuccess: () => void;
+}) {
+  const [reason, setReason] = useState('Spam');
+  const [evidence, setEvidence] = useState('');
+  const [screenshot, setScreenshot] = useState<File | null>(null);
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!evidence.trim()) {
+      setError('Please provide detailed evidence.');
+      return;
+    }
+    setLoading(true);
+    setError('');
+    try {
+      await reportAccount(reportedUser.id, reason, evidence, screenshot);
+      onSuccess();
+    } catch (err: any) {
+      setError(err.response?.data?.detail || 'Failed to submit report.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className={styles.overlay}>
+      <div className={`card ${styles.modal}`}>
+        <h2 className={styles.modalTitle}>Report Account</h2>
+        <p className={styles.modalSub}>Help us keep Umoja Skills safe by reporting violations.</p>
+
+        {error && <div className={styles.modalError}>{error}</div>}
+
+        <form onSubmit={handleSubmit} className={styles.modalForm}>
+          <label className={styles.modalLabel}>
+            Reason
+            <select
+              className={styles.modalInput}
+              value={reason}
+              onChange={e => setReason(e.target.value)}
+            >
+              <option value="Spam">Spam / Advertising</option>
+              <option value="Harassment">Harassment or Abuse</option>
+              <option value="Fraud">Fraud or Scam</option>
+              <option value="Inappropriate Content">Inappropriate profile content</option>
+              <option value="Other">Other</option>
+            </select>
+          </label>
+
+          <label className={styles.modalLabel}>
+            Detailed Evidence
+            <textarea
+              className={styles.modalTextarea}
+              placeholder="Describe the issue, include transaction details, dates, etc."
+              value={evidence}
+              onChange={e => setEvidence(e.target.value)}
+              rows={4}
+              required
+            />
+          </label>
+
+          <label className={styles.modalLabel}>
+            Screenshot / Evidence Image <span style={{ fontWeight: 400, color: 'var(--color-text-muted)' }}>(optional)</span>
+            <input
+              type="file"
+              accept="image/*"
+              className={styles.modalInput}
+              onChange={e => {
+                if (e.target.files && e.target.files[0]) {
+                  setScreenshot(e.target.files[0]);
+                }
+              }}
+            />
+          </label>
+
+          <div className={styles.modalActions}>
+            <button type="button" className={styles.modalBtnCancel} onClick={onClose} disabled={loading}>
+              Cancel
+            </button>
+            <button
+              type="submit"
+              className={styles.modalBtnSubmit}
+              style={{ background: 'var(--color-cancelled)' }}
+              disabled={loading}
+            >
+              {loading ? 'Submitting...' : 'Submit Report'}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+}
+

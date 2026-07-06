@@ -3,7 +3,7 @@ from rest_framework import serializers
 from django.contrib.auth import authenticate
 from django.core.validators import validate_email
 from django.core.exceptions import ValidationError as DjangoValidationError
-from .models import User, VerificationRequest
+from .models import User, VerificationRequest, AccountReport
 
 # ---------------------------------------------------------------------------
 # Helpers
@@ -76,9 +76,9 @@ class UserSerializer(serializers.ModelSerializer):
         model = User
         fields = (
             'id', 'email', 'first_name', 'last_name',
-            'phone', 'role', 'avatar', 'location', 'is_verified',
+            'phone', 'role', 'avatar', 'location', 'is_verified', 'is_staff',
         )
-        read_only_fields = ('id', 'is_verified')
+        read_only_fields = ('id', 'is_verified', 'is_staff')
 
 
 class RegisterSerializer(serializers.ModelSerializer):
@@ -159,4 +159,40 @@ class VerificationRequestSerializer(serializers.ModelSerializer):
         model = VerificationRequest
         fields = ('id', 'document_type', 'document_number', 'document_image', 'status', 'created_at')
         read_only_fields = ('id', 'status', 'created_at')
+
+
+class AccountReportSerializer(serializers.ModelSerializer):
+    reporter = UserSerializer(read_only=True)
+    reported_user = UserSerializer(read_only=True)
+    reported_user_id = serializers.UUIDField(write_only=True)
+
+    class Meta:
+        model = AccountReport
+        fields = (
+            'id', 'reporter', 'reported_user', 'reported_user_id',
+            'reason', 'evidence', 'screenshot', 'status', 'created_at', 'updated_at'
+        )
+        read_only_fields = ('id', 'reporter', 'reported_user', 'status', 'created_at', 'updated_at')
+
+    def validate_reported_user_id(self, value):
+        try:
+            user = User.objects.get(id=value)
+        except User.DoesNotExist:
+            raise serializers.ValidationError("Reported user does not exist.")
+        return value
+
+    def create(self, validated_data):
+        reported_user_id = validated_data.pop('reported_user_id')
+        reported_user = User.objects.get(id=reported_user_id)
+        # Ensure user is not reporting themselves (broken object level authorization check)
+        reporter = self.context['request'].user
+        if reporter == reported_user:
+            raise serializers.ValidationError("You cannot report yourself.")
+        
+        return AccountReport.objects.create(
+            reporter=reporter,
+            reported_user=reported_user,
+            **validated_data
+        )
+
 

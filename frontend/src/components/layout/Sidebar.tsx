@@ -5,7 +5,7 @@ import { useLayout } from './LayoutContext';
 import {
   LayoutDashboard, Search, CalendarDays, MessageSquare,
   Bookmark, User, Settings, LogOut, Briefcase, DollarSign, Users,
-  Sun, Moon, X, ChevronsLeft, ChevronsRight,
+  Sun, Moon, X, ChevronsLeft, ChevronsRight, Shield,
 } from 'lucide-react';
 import styles from './Sidebar.module.css';
 
@@ -41,7 +41,11 @@ export default function Sidebar({ isOpen, onClose, collapsed }: SidebarProps) {
   const { theme, toggleTheme } = useThemeStore();
   const { onToggleCollapse } = useLayout();
   const navigate = useNavigate();
-  const nav = user?.role === 'PROVIDER' ? providerNav : clientNav;
+  
+  let nav = user?.role === 'PROVIDER' ? [...providerNav] : [...clientNav];
+  if (user?.is_staff) {
+    nav.push({ to: '/admin', icon: Shield, label: 'Admin Security' });
+  }
 
   const handleLogout = () => { logout(); navigate('/login'); };
 

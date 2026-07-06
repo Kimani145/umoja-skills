@@ -157,3 +157,27 @@ class VerificationRequest(models.Model):
     def __str__(self):
         return f"{self.user.email} - {self.document_type} ({self.status})"
 
+
+class AccountReport(models.Model):
+    STATUS_CHOICES = (
+        ('PENDING', 'Pending'),
+        ('RESOLVED', 'Resolved'),
+        ('DISMISSED', 'Dismissed'),
+    )
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    reporter = models.ForeignKey(User, on_delete=models.CASCADE, related_name='reports_submitted')
+    reported_user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='reports_received')
+    reason = models.CharField(max_length=255)
+    evidence = models.TextField()
+    screenshot = models.ImageField(upload_to='reports/', null=True, blank=True)
+    status = models.CharField(max_length=15, choices=STATUS_CHOICES, default='PENDING', db_index=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"Report by {self.reporter.email} against {self.reported_user.email} ({self.status})"
+
+

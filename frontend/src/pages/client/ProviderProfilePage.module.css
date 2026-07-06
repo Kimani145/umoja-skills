@@ -147,6 +147,25 @@
 }
 .btnPrimary:hover { background: var(--color-primary-hover); }
 
+.btnReport {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px;
+  background: var(--color-surface-2);
+  color: var(--color-cancelled);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.btnReport:hover {
+  background: var(--color-cancelled-bg);
+  border-color: var(--color-cancelled);
+}
+
 .about {
   text-align: left;
   border-top: 1px solid var(--color-border);

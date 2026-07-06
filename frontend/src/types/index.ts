@@ -11,6 +11,8 @@ export interface User {
   is_verified: boolean;
   first_name: string;
   last_name: string;
+  is_staff?: boolean;
+  is_active?: boolean;
 }
 
 export interface ProviderProfile {
@@ -115,3 +117,16 @@ export interface Activity {
   text: string;
   timestamp: string;
 }
+
+export interface AccountReport {
+  id: string;
+  reporter: User;
+  reported_user: User;
+  reason: string;
+  evidence: string;
+  screenshot: string | null;
+  status: 'PENDING' | 'RESOLVED' | 'DISMISSED';
+  created_at: string;
+  updated_at: string;
+}
+

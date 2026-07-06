@@ -16,16 +16,9 @@ import SavedProvidersPage from '../pages/client/SavedProvidersPage';
 import MyServicesPage from '../pages/provider/MyServicesPage';
 import AddServicePage from '../pages/provider/AddServicePage';
 import EarningsPage from '../pages/provider/EarningsPage';
-
-const AdminRedirect = () => {
-  const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000/api';
-  const baseUrl = apiUrl.replace(/\/api\/?$/, '');
-  window.location.replace(`${baseUrl}/umoja-mgmt/`);
-  return null;
-};
+import AdminDashboardPage from '../pages/shared/AdminDashboardPage';
 
 export const router = createBrowserRouter([
-  { path: '/admin',           element: <AdminRedirect /> },
   { path: '/login',           element: <LoginPage /> },
   { path: '/register',        element: <RegisterPage /> },
   { path: '/forgot-password', element: <ForgotPasswordPage /> },
@@ -34,6 +27,10 @@ export const router = createBrowserRouter([
     path: '/',
     element: <ProtectedRoute><AppLayout /></ProtectedRoute>,
     children: [
+      {
+        path: 'admin',
+        element: <ProtectedRoute requireStaff><AdminDashboardPage /></ProtectedRoute>,
+      },
       { index: true, element: <Navigate to="/dashboard" replace /> },
       { path: 'dashboard', element: <DashboardRouter /> },
       { path: 'search', element: <SearchPage /> },

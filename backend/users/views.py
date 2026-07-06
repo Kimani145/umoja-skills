@@ -1,15 +1,15 @@
 from rest_framework import generics, status, viewsets, filters
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticated, AllowAny
+from rest_framework.permissions import IsAuthenticated, AllowAny, IsAdminUser
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth import authenticate
 from django.db import transaction
 from django.utils import timezone
 from django.core.mail import send_mail
 from django.conf import settings as django_settings
-from .models import User, ProviderProfile, SavedProvider, PasswordResetToken, VerificationRequest
-from .serializers import UserSerializer, RegisterSerializer, LoginSerializer, VerificationRequestSerializer
+from .models import User, ProviderProfile, SavedProvider, PasswordResetToken, VerificationRequest, AccountReport
+from .serializers import UserSerializer, RegisterSerializer, LoginSerializer, VerificationRequestSerializer, AccountReportSerializer
 from django.db.models.functions import TruncMonth
 from django.db.models import Sum, Count
 
@@ -380,4 +380,64 @@ class PasswordResetConfirmView(APIView):
         reset.save(update_fields=['used'])
 
         return Response({'detail': 'Password updated successfully. You can now sign in.'})
+
+
+class ReportCreateView(generics.CreateAPIView):
+    """Allows authenticated users to report accounts."""
+    permission_classes = [IsAuthenticated]
+    serializer_class = AccountReportSerializer
+
+    def perform_create(self, serializer):
+        serializer.save(reporter=self.request.user)
+
+
+class AdminReportListView(generics.ListAPIView):
+    """Allows staff/admin to view all reported accounts, screenshots, and evidence."""
+    permission_classes = [IsAuthenticated, IsAdminUser]
+    serializer_class = AccountReportSerializer
+    queryset = AccountReport.objects.all().select_related('reporter', 'reported_user')
+
+
+class AdminReportResolveView(APIView):
+    """Allows staff/admin to resolve or dismiss a report."""
+    permission_classes = [IsAuthenticated, IsAdminUser]
+
+    def post(self, request, report_id):
+        try:
+            report = AccountReport.objects.get(id=report_id)
+        except AccountReport.DoesNotExist:
+            return Response({'detail': 'Report not found.'}, status=status.HTTP_404_NOT_FOUND)
+
+        new_status = request.data.get('status')
+        if new_status not in ['RESOLVED', 'DISMISSED']:
+            return Response({'detail': 'Invalid status. Choose RESOLVED or DISMISSED.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        report.status = new_status
+        report.save(update_fields=['status'])
+        return Response({'detail': f'Report status updated to {new_status}.'})
+
+
+class AdminUserSuspendView(APIView):
+    """Allows staff/admin to suspend or unsuspend a user account (reversible process)."""
+    permission_classes = [IsAuthenticated, IsAdminUser]
+
+    def post(self, request, user_id):
+        try:
+            user = User.objects.get(id=user_id)
+        except User.DoesNotExist:
+            return Response({'detail': 'User not found.'}, status=status.HTTP_404_NOT_FOUND)
+
+        # Prevent suspending oneself
+        if user == request.user:
+            return Response({'detail': 'You cannot suspend your own account.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        user.is_active = not user.is_active
+        user.save(update_fields=['is_active'])
+
+        action_taken = "suspended" if not user.is_active else "activated"
+        return Response({
+            'detail': f'User {user.email} has been successfully {action_taken}.',
+            'is_active': user.is_active
+        })
+
 

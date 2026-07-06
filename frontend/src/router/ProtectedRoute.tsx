@@ -6,9 +6,10 @@ import { UserRole } from '../types';
 interface Props {
   children: React.ReactNode;
   requiredRole?: UserRole;
+  requireStaff?: boolean;
 }
 
-export default function ProtectedRoute({ children, requiredRole }: Props) {
+export default function ProtectedRoute({ children, requiredRole, requireStaff }: Props) {
   const { isAuthenticated, user, isHydrating, hydrate } = useAuthStore();
   const location = useLocation();
 
@@ -38,6 +39,10 @@ export default function ProtectedRoute({ children, requiredRole }: Props) {
         Loading...
       </div>
     );
+  }
+
+  if (requireStaff && !user?.is_staff) {
+    return <Navigate to="/dashboard" replace />;
   }
 
   if (requiredRole && user?.role !== requiredRole) {

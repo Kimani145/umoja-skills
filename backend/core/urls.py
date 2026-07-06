@@ -14,6 +14,7 @@ from users.views import (
     ClientDashboardView, ProviderDashboardView,
     SavedProviderView, EarningsBreakdownView,
     PasswordResetRequestView, PasswordResetConfirmView,
+    ReportCreateView, AdminReportListView, AdminReportResolveView, AdminUserSuspendView,
 )
 from services.views import ServiceCategoryViewSet, ServiceListingViewSet, ProviderProfileView
 from bookings.views import BookingViewSet
@@ -70,6 +71,13 @@ urlpatterns = [
 
     # Typing indicator
     path('api/conversations/<uuid:conversation_id>/typing/', TypingView.as_view(), name='typing'),
+
+    # Reports and Admin Dashboard Management
+    path('api/reports/', ReportCreateView.as_view(), name='report_create'),
+    path('api/admin/reports/', AdminReportListView.as_view(), name='admin_reports'),
+    path('api/admin/reports/<uuid:report_id>/resolve/', AdminReportResolveView.as_view(), name='admin_report_resolve'),
+    path('api/admin/users/<uuid:user_id>/toggle-suspend/', AdminUserSuspendView.as_view(), name='admin_user_suspend'),
+
 
     # API routers (services, bookings, conversations, messages)
     path('api/', include(router.urls)),

@@ -1,16 +1,6 @@
 {
   "redirects": [
     {
-      "source": "/admin",
-      "destination": "https://umoja-skills.onrender.com/umoja-mgmt/",
-      "permanent": false
-    },
-    {
-      "source": "/admin/:path*",
-      "destination": "https://umoja-skills.onrender.com/umoja-mgmt/:path*",
-      "permanent": false
-    },
-    {
       "source": "/umoja-mgmt",
       "destination": "https://umoja-skills.onrender.com/umoja-mgmt/",
       "permanent": false
