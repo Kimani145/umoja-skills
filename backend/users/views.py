@@ -8,15 +8,23 @@ from django.db import transaction
 from django.utils import timezone
 from django.core.mail import send_mail
 from django.conf import settings as django_settings
-from .models import User, ProviderProfile, SavedProvider, PasswordResetToken, VerificationRequest, AccountReport, AdminActivityLog
-from .serializers import UserSerializer, RegisterSerializer, LoginSerializer, VerificationRequestSerializer, AccountReportSerializer, AdminActivityLogSerializer
+from .models import User, ProviderProfile, SavedProvider, PasswordResetToken, VerificationRequest, AccountReport, AdminActivityLog, EmailVerificationChallenge
+from .serializers import (
+    UserSerializer,
+    RegisterSerializer,
+    LoginSerializer,
+    EmailVerificationConfirmSerializer,
+    VerificationRequestSerializer,
+    AccountReportSerializer,
+    AdminActivityLogSerializer,
+)
 from django.db.models.functions import TruncMonth
 from django.db.models import Sum, Count
 
 
 
 class RegisterView(APIView):
-    """Register a new user and return user + tokens."""
+    """Register a new user and send an email verification challenge."""
     permission_classes = [AllowAny]
 
     def post(self, request):
@@ -31,27 +39,109 @@ class RegisterView(APIView):
                 if user.role == 'PROVIDER':
                     ProviderProfile.objects.get_or_create(user=user)
 
-            refresh = RefreshToken.for_user(user)
+                challenge = EmailVerificationChallenge.create_for_user(
+                    user,
+                    EmailVerificationChallenge.PURPOSE_REGISTER,
+                )
+                self._send_verification_email(user, challenge, purpose_label='sign-up')
+
             return Response({
-                'user': UserSerializer(user).data,
-                'access': str(refresh.access_token),
-                'refresh': str(refresh),
-            }, status=status.HTTP_201_CREATED)
+                'verification_required': True,
+                'challenge_id': str(challenge.id),
+                'detail': 'We sent a confirmation code to your email. Enter it to finish signing up.',
+            }, status=status.HTTP_202_ACCEPTED)
         except Exception as e:
             import traceback
             return Response({"error": str(e), "traceback": traceback.format_exc()}, status=status.HTTP_400_BAD_REQUEST)
 
+    @staticmethod
+    def _send_verification_email(user, challenge, purpose_label):
+        send_mail(
+            subject='Confirm your Umoja Skills account',
+            message=(
+                f"Hi {user.first_name},\n\n"
+                f"Use this one-time code to finish your {purpose_label}:\n\n"
+                f"{challenge.code}\n\n"
+                f"The code expires in 10 minutes. If you did not request this, ignore this email.\n\n"
+                f"- The Umoja Skills Team"
+            ),
+            from_email=getattr(django_settings, 'DEFAULT_FROM_EMAIL', 'noreply@umoja-skills.com'),
+            recipient_list=[user.email],
+            fail_silently=False,
+        )
+
 
 class LoginView(APIView):
-    """Login and return user + tokens."""
+    """Authenticate a user and send an email verification challenge."""
     permission_classes = [AllowAny]
 
     def post(self, request):
         serializer = LoginSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         user = serializer.validated_data['user']
+
+        try:
+            with transaction.atomic():
+                challenge = EmailVerificationChallenge.create_for_user(
+                    user,
+                    EmailVerificationChallenge.PURPOSE_LOGIN,
+                )
+                self._send_verification_email(user, challenge)
+        except Exception as exc:
+            return Response({'detail': f'Unable to send verification email: {exc}'}, status=status.HTTP_503_SERVICE_UNAVAILABLE)
+
+        return Response({
+            'verification_required': True,
+            'challenge_id': str(challenge.id),
+            'detail': 'We sent a confirmation code to your email. Enter it to finish signing in.',
+        }, status=status.HTTP_202_ACCEPTED)
+
+    @staticmethod
+    def _send_verification_email(user, challenge):
+        send_mail(
+            subject='Confirm your Umoja Skills sign-in',
+            message=(
+                f"Hi {user.first_name},\n\n"
+                f"Use this one-time code to finish your sign-in:\n\n"
+                f"{challenge.code}\n\n"
+                f"The code expires in 10 minutes. If you did not request this, you can ignore this email.\n\n"
+                f"- The Umoja Skills Team"
+            ),
+            from_email=getattr(django_settings, 'DEFAULT_FROM_EMAIL', 'noreply@umoja-skills.com'),
+            recipient_list=[user.email],
+            fail_silently=False,
+        )
+
+
+class EmailVerificationConfirmView(APIView):
+    """Confirm a one-time email verification code and issue JWTs."""
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        serializer = EmailVerificationConfirmSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        try:
+            challenge = EmailVerificationChallenge.objects.select_related('user').get(
+                id=serializer.validated_data['challenge_id']
+            )
+        except EmailVerificationChallenge.DoesNotExist:
+            return Response({'detail': 'Verification code is invalid or has expired.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        if not challenge.is_valid(serializer.validated_data['code']):
+            return Response({'detail': 'Verification code is invalid or has expired.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        challenge.used = True
+        challenge.save(update_fields=['used'])
+
+        user = challenge.user
+        if not user.email_verified:
+            user.email_verified = True
+            user.save(update_fields=['email_verified'])
+
         refresh = RefreshToken.for_user(user)
         return Response({
+            'detail': 'Email confirmed successfully.',
             'user': UserSerializer(user).data,
             'access': str(refresh.access_token),
             'refresh': str(refresh),

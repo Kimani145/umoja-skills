@@ -3,6 +3,7 @@ import secrets
 from django.utils import timezone
 from datetime import timedelta
 from django.db import models
+from django.db.models import Q
 from django.contrib.auth.models import AbstractUser, BaseUserManager
 from django.core.validators import MinValueValidator, MaxValueValidator
 
@@ -39,6 +40,7 @@ class User(AbstractUser):
     avatar = models.ImageField(upload_to='avatars/', null=True, blank=True)
     location = models.CharField(max_length=100, blank=True)
     is_verified = models.BooleanField(default=False)
+    email_verified = models.BooleanField(default=False, db_index=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     
@@ -50,9 +52,67 @@ class User(AbstractUser):
     class Meta:
         verbose_name = 'User'
         verbose_name_plural = 'Users'
+        constraints = [
+            models.UniqueConstraint(
+                fields=['phone'],
+                condition=~Q(phone=''),
+                name='unique_user_phone',
+            ),
+        ]
     
     def __str__(self):
         return f"{self.email} ({self.get_role_display()})"
+
+
+class EmailVerificationChallenge(models.Model):
+    PURPOSE_REGISTER = 'REGISTER'
+    PURPOSE_LOGIN = 'LOGIN'
+    PURPOSE_CHOICES = (
+        (PURPOSE_REGISTER, 'Register'),
+        (PURPOSE_LOGIN, 'Login'),
+    )
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='email_verification_challenges')
+    purpose = models.CharField(max_length=20, choices=PURPOSE_CHOICES, db_index=True)
+    code = models.CharField(max_length=6, db_index=True)
+    expires_at = models.DateTimeField()
+    used = models.BooleanField(default=False, db_index=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-created_at']
+        constraints = [
+            models.UniqueConstraint(
+                fields=['user', 'purpose'],
+                condition=Q(used=False),
+                name='unique_active_email_verification_challenge_per_user_purpose',
+            ),
+        ]
+        indexes = [
+            models.Index(fields=['user', 'purpose', 'used'], name='idx_email_verif_active'),
+        ]
+
+    @classmethod
+    def create_for_user(cls, user, purpose):
+        cls.objects.filter(user=user, purpose=purpose, used=False).update(used=True)
+        code = f"{secrets.randbelow(1_000_000):06d}"
+        return cls.objects.create(
+            user=user,
+            purpose=purpose,
+            code=code,
+            expires_at=timezone.now() + timedelta(minutes=10),
+        )
+
+    def is_valid(self, submitted_code):
+        return (
+            not self.used
+            and self.expires_at >= timezone.now()
+            and secrets.compare_digest(self.code, submitted_code or '')
+        )
+
+    def __str__(self):
+        return f"Email verification for {self.user.email} ({self.purpose})"
 
 
 class ProviderProfile(models.Model):

@@ -3,7 +3,7 @@ from rest_framework import serializers
 from django.contrib.auth import authenticate
 from django.core.validators import validate_email
 from django.core.exceptions import ValidationError as DjangoValidationError
-from .models import User, VerificationRequest, AccountReport, AdminActivityLog
+from .models import User, VerificationRequest, AccountReport, AdminActivityLog, EmailVerificationChallenge
 
 # ---------------------------------------------------------------------------
 # Helpers
@@ -67,6 +67,19 @@ def validate_kenyan_phone(value: str) -> str:
     return clean  # already starts with +254
 
 
+def _validate_unique_phone(value: str, instance: User | None = None) -> str:
+    normalized = validate_kenyan_phone(value)
+    if not normalized:
+        raise serializers.ValidationError('Phone number is required.')
+
+    query = User.objects.filter(phone=normalized)
+    if instance and instance.pk:
+        query = query.exclude(pk=instance.pk)
+    if query.exists():
+        raise serializers.ValidationError('An account with this phone number already exists.')
+    return normalized
+
+
 # ---------------------------------------------------------------------------
 # Serializers
 # ---------------------------------------------------------------------------
@@ -76,16 +89,21 @@ class UserSerializer(serializers.ModelSerializer):
         model = User
         fields = (
             'id', 'email', 'first_name', 'last_name',
-            'phone', 'role', 'avatar', 'location', 'is_verified', 'is_staff', 'is_active',
+            'phone', 'role', 'avatar', 'location', 'is_verified', 'email_verified', 'is_staff', 'is_active',
         )
-        read_only_fields = ('id', 'is_verified', 'is_staff')
+        read_only_fields = ('id', 'email', 'is_verified', 'email_verified', 'is_staff')
+
+    def validate_phone(self, value: str) -> str:
+        if not value:
+            return value
+        return _validate_unique_phone(value, instance=self.instance)
 
 
 class RegisterSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True, min_length=8)
     first_name = serializers.CharField(required=True, max_length=150)
     last_name = serializers.CharField(required=True, max_length=150)
-    phone = serializers.CharField(required=False, allow_blank=True, default='')
+    phone = serializers.CharField(required=True)
     location = serializers.CharField(required=False, allow_blank=True, default='')
 
     class Meta:
@@ -103,6 +121,9 @@ class RegisterSerializer(serializers.ModelSerializer):
         if User.objects.filter(email=value).exists():
             raise serializers.ValidationError('An account with this email already exists.')
         return value
+
+    def validate_phone(self, value: str) -> str:
+        return _validate_unique_phone(value)
 
     def validate_password(self, value: str) -> str:
         if len(value) < 8:
@@ -152,6 +173,11 @@ class LoginSerializer(serializers.Serializer):
             raise serializers.ValidationError('Account is disabled.')
         data['user'] = user
         return data
+
+
+class EmailVerificationConfirmSerializer(serializers.Serializer):
+    challenge_id = serializers.UUIDField()
+    code = serializers.CharField(min_length=6, max_length=6)
 
 
 class VerificationRequestSerializer(serializers.ModelSerializer):

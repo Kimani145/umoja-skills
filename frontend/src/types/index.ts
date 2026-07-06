@@ -9,6 +9,7 @@ export interface User {
   avatar: string | null;
   location: string;
   is_verified: boolean;
+  email_verified?: boolean;
   first_name: string;
   last_name: string;
   is_staff?: boolean;

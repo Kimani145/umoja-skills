@@ -71,6 +71,9 @@ export default function RegisterPage() {
   const [loading, setLoading]     = useState(false);
   const [showPw, setShowPw]       = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
+  const [challengeId, setChallengeId] = useState('');
+  const [verificationCode, setVerificationCode] = useState('');
+  const [verificationMessage, setVerificationMessage] = useState('');
 
   const { setAuth } = useAuthStore();
   const navigate    = useNavigate();
@@ -105,8 +108,12 @@ export default function RegisterPage() {
       errs.confirmPassword = 'Passwords do not match.';
     }
 
-    const phoneErr = validatePhone(form.phone);
-    if (phoneErr) errs.phone = phoneErr;
+    if (!form.phone.trim()) {
+      errs.phone = 'Phone number is required.';
+    } else {
+      const phoneErr = validatePhone(form.phone);
+      if (phoneErr) errs.phone = phoneErr;
+    }
 
     setErrors(errs);
     return Object.keys(errs).length === 0;
@@ -129,8 +136,14 @@ export default function RegisterPage() {
         location:   form.location,
         role:       form.role,
       });
-      setAuth(data.user, data.access, data.refresh);
-      navigate('/dashboard');
+
+      if (data.verification_required && data.challenge_id) {
+        setChallengeId(data.challenge_id);
+        setVerificationMessage(data.detail);
+        return;
+      }
+
+      setServerError(data.detail || 'Registration failed. Please try again.');
     } catch (err: any) {
       const d = err.response?.data;
       const msg =
@@ -142,6 +155,26 @@ export default function RegisterPage() {
         d?.non_field_errors?.[0] ||
         'Registration failed. Please try again.';
       setServerError(msg);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleVerificationSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setServerError('');
+    if (!challengeId || verificationCode.trim().length !== 6) {
+      setServerError('Enter the 6-digit code from your email.');
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const { data } = await authApi.confirmEmailVerification(challengeId, verificationCode.trim());
+      setAuth(data.user, data.access, data.refresh);
+      navigate('/dashboard');
+    } catch (err: any) {
+      setServerError(err.response?.data?.detail || 'Verification failed. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -173,8 +206,32 @@ export default function RegisterPage() {
         <h1 className={styles.title}>Create your account</h1>
 
         {serverError && <div className={styles.error}>{serverError}</div>}
+        {verificationMessage && !serverError && <div className={styles.success}>{verificationMessage}</div>}
 
-        <form onSubmit={handleSubmit} className={styles.form} noValidate>
+        <form onSubmit={challengeId ? handleVerificationSubmit : handleSubmit} className={styles.form} noValidate>
+          {challengeId ? (
+            <>
+              <label className={styles.label}>
+                Confirmation code
+                <input
+                  className={styles.input}
+                  inputMode="numeric"
+                  pattern="[0-9]*"
+                  maxLength={6}
+                  value={verificationCode}
+                  onChange={e => setVerificationCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
+                  placeholder="123456"
+                  autoComplete="one-time-code"
+                  required
+                  autoFocus
+                />
+              </label>
+              <button className={styles.btn} type="submit" disabled={loading}>
+                {loading ? 'Verifying…' : 'Verify email and continue'}
+              </button>
+            </>
+          ) : (
+            <>
 
           {/* Name row */}
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
@@ -304,6 +361,7 @@ export default function RegisterPage() {
                 onChange={set('phone')}
                 placeholder="+254 7XX XXX XXX"
                 autoComplete="tel"
+                required
               />
             </label>
             {errors.phone
@@ -332,6 +390,8 @@ export default function RegisterPage() {
           <button className={styles.btn} type="submit" disabled={loading}>
             {loading ? 'Creating account…' : 'Create account'}
           </button>
+            </>
+          )}
         </form>
 
         <p className={styles.footer}>

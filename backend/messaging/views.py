@@ -4,9 +4,13 @@ from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.views import APIView
 from django.db.models import Q
+from django.conf import settings as django_settings
+from django.core.mail import send_mail
+from django.utils import timezone
 from .models import Conversation, Message
 from .serializers import ConversationListSerializer, ConversationDetailSerializer, MessageSerializer
 import os
+import logging
 
 # Redis client — graceful fallback if Redis not available
 try:
@@ -75,7 +79,6 @@ class MessageViewSet(viewsets.ModelViewSet):
         return context
 
     def perform_create(self, serializer):
-        from django.utils import timezone
         conversation_id = self.kwargs.get('conversation_id')
         message = serializer.save(
             sender=self.request.user,
@@ -83,6 +86,43 @@ class MessageViewSet(viewsets.ModelViewSet):
         )
         # Bubble conversation to top of list
         Conversation.objects.filter(pk=conversation_id).update(updated_at=timezone.now())
+        self._send_email_notifications(message)
+
+    @staticmethod
+    def _send_email_notifications(message):
+        frontend_url = getattr(django_settings, 'FRONTEND_URL', 'http://localhost:5173').rstrip('/')
+        conversation_url = f"{frontend_url}/messages/{message.conversation_id}"
+        recipients = list(
+            message.conversation.participants.exclude(id=message.sender_id).values_list('email', flat=True)
+        )
+        if not recipients:
+            return
+
+        sender_name = message.sender.get_full_name().strip() or message.sender.email
+        subject = f"New message from {sender_name}"
+        body = (
+            f"Hi,\n\n"
+            f"{sender_name} sent you a new message on Umoja Skills:\n\n"
+            f"{message.body}\n\n"
+            f"Reply here: {conversation_url}\n\n"
+            f"- The Umoja Skills Team"
+        )
+
+        for recipient in recipients:
+            try:
+                send_mail(
+                    subject=subject,
+                    message=body,
+                    from_email=getattr(django_settings, 'DEFAULT_FROM_EMAIL', 'noreply@umoja-skills.com'),
+                    recipient_list=[recipient],
+                    fail_silently=False,
+                )
+            except Exception:
+                logging.getLogger(__name__).exception(
+                    'Failed to send message notification to %s for conversation %s',
+                    recipient,
+                    message.conversation_id,
+                )
 
 
 class TypingView(APIView):

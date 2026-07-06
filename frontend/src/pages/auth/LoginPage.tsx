@@ -10,6 +10,9 @@ export default function LoginPage() {
   const [showPw, setShowPw]   = useState(false);
   const [error, setError]     = useState('');
   const [loading, setLoading] = useState(false);
+  const [challengeId, setChallengeId] = useState('');
+  const [verificationCode, setVerificationCode] = useState('');
+  const [verificationMessage, setVerificationMessage] = useState('');
 
   const { setAuth } = useAuthStore();
   const navigate    = useNavigate();
@@ -21,14 +24,38 @@ export default function LoginPage() {
     setError('');
     try {
       const { data } = await authApi.login(email, password);
-      setAuth(data.user, data.access, data.refresh);
-      navigate(params.get('next') || '/dashboard');
+      if (data.verification_required && data.challenge_id) {
+        setChallengeId(data.challenge_id);
+        setVerificationMessage(data.detail);
+        return;
+      }
+      setError(data.detail || 'Invalid email or password.');
     } catch (err: any) {
       setError(
         err.response?.data?.detail ||
         err.response?.data?.non_field_errors?.[0] ||
         'Invalid email or password.'
       );
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleVerificationSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError('');
+    if (!challengeId || verificationCode.trim().length !== 6) {
+      setError('Enter the 6-digit code from your email.');
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const { data } = await authApi.confirmEmailVerification(challengeId, verificationCode.trim());
+      setAuth(data.user, data.access, data.refresh);
+      navigate(params.get('next') || '/dashboard');
+    } catch (err: any) {
+      setError(err.response?.data?.detail || 'Verification failed. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -44,60 +71,87 @@ export default function LoginPage() {
         <h1 className={styles.title}>Sign in to your account</h1>
 
         {error && <div className={styles.error}>{error}</div>}
+        {verificationMessage && !error && <div className={styles.success}>{verificationMessage}</div>}
 
-        <form onSubmit={handleSubmit} className={styles.form}>
-          <label className={styles.label}>
-            Email address
-            <input
-              className={styles.input}
-              type="email"
-              value={email}
-              onChange={e => setEmail(e.target.value)}
-              placeholder="name@example.com"
-              autoComplete="email"
-              required
-              autoFocus
-            />
-          </label>
-
-          <div>
-            <label className={styles.label}>
-              Password
-              <div className={styles.passwordWrap}>
+        <form onSubmit={challengeId ? handleVerificationSubmit : handleSubmit} className={styles.form}>
+          {challengeId ? (
+            <>
+              <label className={styles.label}>
+                Confirmation code
                 <input
                   className={styles.input}
-                  type={showPw ? 'text' : 'password'}
-                  value={password}
-                  onChange={e => setPassword(e.target.value)}
-                  placeholder="••••••••"
-                  autoComplete="current-password"
+                  inputMode="numeric"
+                  pattern="[0-9]*"
+                  maxLength={6}
+                  value={verificationCode}
+                  onChange={e => setVerificationCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
+                  placeholder="123456"
+                  autoComplete="one-time-code"
                   required
+                  autoFocus
                 />
-                <button
-                  type="button"
-                  className={styles.eyeBtn}
-                  onClick={() => setShowPw(v => !v)}
-                  aria-label={showPw ? 'Hide password' : 'Show password'}
-                >
-                  {showPw ? '🙈' : '👁'}
-                </button>
+              </label>
+
+              <button className={styles.btn} type="submit" disabled={loading}>
+                {loading ? 'Verifying…' : 'Verify email and sign in'}
+              </button>
+            </>
+          ) : (
+            <>
+              <label className={styles.label}>
+                Email address
+                <input
+                  className={styles.input}
+                  type="email"
+                  value={email}
+                  onChange={e => setEmail(e.target.value)}
+                  placeholder="name@example.com"
+                  autoComplete="email"
+                  required
+                  autoFocus
+                />
+              </label>
+
+              <div>
+                <label className={styles.label}>
+                  Password
+                  <div className={styles.passwordWrap}>
+                    <input
+                      className={styles.input}
+                      type={showPw ? 'text' : 'password'}
+                      value={password}
+                      onChange={e => setPassword(e.target.value)}
+                      placeholder="••••••••"
+                      autoComplete="current-password"
+                      required
+                    />
+                    <button
+                      type="button"
+                      className={styles.eyeBtn}
+                      onClick={() => setShowPw(v => !v)}
+                      aria-label={showPw ? 'Hide password' : 'Show password'}
+                    >
+                      {showPw ? '🙈' : '👁'}
+                    </button>
+                  </div>
+                </label>
               </div>
-            </label>
-          </div>
 
-          {/* Forgot password link — right-aligned below the field */}
-          <div style={{ textAlign: 'right', marginTop: -6 }}>
-            <Link
-              to="/forgot-password"
-              style={{ fontSize: 13, color: 'var(--color-primary)', fontWeight: 600 }}
-            >
-              Forgot password?
-            </Link>
-          </div>
+              {/* Forgot password link — right-aligned below the field */}
+              <div style={{ textAlign: 'right', marginTop: -6 }}>
+                <Link
+                  to="/forgot-password"
+                  style={{ fontSize: 13, color: 'var(--color-primary)', fontWeight: 600 }}
+                >
+                  Forgot password?
+                </Link>
+              </div>
 
-          <button className={styles.btn} type="submit" disabled={loading}>
-            {loading ? 'Signing in…' : 'Sign in'}
-          </button>
+              <button className={styles.btn} type="submit" disabled={loading}>
+                {loading ? 'Signing in…' : 'Sign in'}
+              </button>
+            </>
+          )}
         </form>
 
         <p className={styles.footer}>

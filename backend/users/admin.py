@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import User, VerificationRequest
+from .models import User, VerificationRequest, EmailVerificationChallenge
 
 @admin.register(User)
 class UserAdmin(admin.ModelAdmin):
@@ -35,3 +35,11 @@ class VerificationRequestAdmin(admin.ModelAdmin):
             user.save(update_fields=['is_verified'])
         self.message_user(request, f"Rejected {queryset.count()} verification requests.")
     reject_requests.short_description = "Reject selected verification requests"
+
+
+@admin.register(EmailVerificationChallenge)
+class EmailVerificationChallengeAdmin(admin.ModelAdmin):
+    list_display = ('user', 'purpose', 'used', 'expires_at', 'created_at')
+    list_filter = ('purpose', 'used', 'created_at')
+    search_fields = ('user__email', 'code')
+    readonly_fields = ('id', 'created_at')

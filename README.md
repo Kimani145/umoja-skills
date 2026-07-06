@@ -124,6 +124,7 @@ Admin panel at: **http://localhost:8000/umoja-mgmt/**
 | `DEBUG` | ✅ | `True` for dev, `False` for prod |
 | `ALLOWED_HOSTS` | ✅ | Comma-separated allowed hostnames |
 | `FRONTEND_URL` | ✅ | Used in password reset email links |
+| `DEFAULT_FROM_EMAIL` | optional | Sender address for reset, verification, and message emails |
 | `REDIS_URL` | optional | Celery broker (defaults to localhost) |
 | `EMAIL_HOST_USER` | optional | SMTP sender email |
 | `EMAIL_HOST_PASSWORD` | optional | SMTP password |
@@ -151,6 +152,7 @@ The backend deploys automatically via `render.yaml`. Set all production env vars
 - `DEBUG=False`
 - `ALLOWED_HOSTS` — your Render hostname
 - `FRONTEND_URL` — your Vercel deployment URL
+- `EMAIL_BACKEND`, `EMAIL_HOST`, `EMAIL_PORT`, `EMAIL_HOST_USER`, `EMAIL_HOST_PASSWORD`, `DEFAULT_FROM_EMAIL` — SMTP settings used for account confirmation and message alerts
 
 ### Frontend — Vercel
 Set in Vercel project settings:
@@ -164,12 +166,12 @@ Set in Vercel project settings:
 | Feature | Details |
 |---|---|
 | **Dual-role auth** | Clients and Service Providers with role-based routing |
-| **JWT authentication** | 30-min access tokens, 7-day refresh with rotation |
+| **JWT authentication** | Signup and login require an email confirmation code before tokens are issued |
 | **KYC verification** | Providers submit National ID / Passport for admin review |
 | **Service listings** | Categories, photos, pricing, service area |
 | **Bookings** | PENDING → CONFIRMED → COMPLETED lifecycle |
 | **Reviews** | One review per completed booking |
-| **Messaging** | Real-time conversation threads |
+| **Messaging** | Real-time conversation threads with recipient email alerts |
 | **Password reset** | Secure single-use token, 1-hour expiry |
 | **Admin panel** | Django admin at `/umoja-mgmt/` |
 
@@ -190,6 +192,8 @@ Set in Vercel project settings:
 - All 15 public Supabase tables have **RLS enabled** — direct PostgREST access is blocked
 - Passwords are hashed using Django's **PBKDF2-SHA256**
 - JWT access tokens expire in **30 minutes** with rotation on refresh
+- Signup and login both send a confirmation code by email before auth completes
+- Email and phone numbers are enforced as unique per account
 - CORS is locked to `FRONTEND_URL` in production
 - Admin panel URL is non-default (`/umoja-mgmt/`)
 
