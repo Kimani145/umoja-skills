@@ -130,3 +130,15 @@ export interface AccountReport {
   updated_at: string;
 }
 
+export interface AdminActivityLog {
+  id: string;
+  admin: string;
+  admin_email: string;
+  action_type: string;
+  target_user: string | null;
+  target_user_email: string | null;
+  details: string;
+  created_at: string;
+}
+
+

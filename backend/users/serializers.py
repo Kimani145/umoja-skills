@@ -3,7 +3,7 @@ from rest_framework import serializers
 from django.contrib.auth import authenticate
 from django.core.validators import validate_email
 from django.core.exceptions import ValidationError as DjangoValidationError
-from .models import User, VerificationRequest, AccountReport
+from .models import User, VerificationRequest, AccountReport, AdminActivityLog
 
 # ---------------------------------------------------------------------------
 # Helpers
@@ -76,7 +76,7 @@ class UserSerializer(serializers.ModelSerializer):
         model = User
         fields = (
             'id', 'email', 'first_name', 'last_name',
-            'phone', 'role', 'avatar', 'location', 'is_verified', 'is_staff',
+            'phone', 'role', 'avatar', 'location', 'is_verified', 'is_staff', 'is_active',
         )
         read_only_fields = ('id', 'is_verified', 'is_staff')
 
@@ -194,5 +194,18 @@ class AccountReportSerializer(serializers.ModelSerializer):
             reported_user=reported_user,
             **validated_data
         )
+
+
+class AdminActivityLogSerializer(serializers.ModelSerializer):
+    admin_email = serializers.EmailField(source='admin.email', read_only=True)
+    target_user_email = serializers.EmailField(source='target_user.email', read_only=True, allow_null=True)
+
+    class Meta:
+        model = AdminActivityLog
+        fields = (
+            'id', 'admin', 'admin_email', 'action_type', 'target_user', 'target_user_email', 'details', 'created_at'
+        )
+        read_only_fields = ('id', 'admin', 'admin_email', 'target_user_email', 'created_at')
+
 
 

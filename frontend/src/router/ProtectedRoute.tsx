@@ -21,11 +21,14 @@ export default function ProtectedRoute({ children, requiredRole, requireStaff }:
   }, [isAuthenticated, user, isHydrating, hydrate]);
 
   if (!isAuthenticated) {
+    if (requireStaff) {
+      return <Navigate to={`/admin/login?next=${location.pathname}`} replace />;
+    }
     return <Navigate to={`/login?next=${location.pathname}`} replace />;
   }
 
-  // Show nothing while hydrating user data
-  if (isAuthenticated && !user && isHydrating) {
+  // Show loading indicator while hydrating user data
+  if (isAuthenticated && !user) {
     return (
       <div style={{
         minHeight: '100vh',

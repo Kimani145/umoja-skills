@@ -134,9 +134,6 @@ export default function AdminDashboardPage() {
       <TopBar />
       <div className={styles.container}>
         <div className={styles.header}>
-          <button className={styles.backBtn} onClick={() => navigate('/dashboard')}>
-            <ArrowLeft size={16} /> Dashboard
-          </button>
           <div className={styles.titleArea}>
             <Shield className={styles.adminIcon} size={28} />
             <div>

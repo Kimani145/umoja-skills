@@ -1,0 +1,229 @@
+.container {
+  padding: 2.5rem;
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+.header {
+  margin-bottom: 2.5rem;
+}
+
+.titleRow {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.icon {
+  color: #3b82f6;
+  filter: drop-shadow(0 0 8px rgba(59, 130, 246, 0.3));
+}
+
+.title {
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: #f3f4f6;
+  margin: 0;
+  letter-spacing: -0.025em;
+}
+
+.subtitle {
+  font-size: 0.95rem;
+  color: #9ca3af;
+  margin: 0.25rem 0 0 0;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: 1fr 1.5fr;
+  gap: 2rem;
+  align-items: start;
+}
+
+@media (max-width: 768px) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.infoCard {
+  background-color: #111827;
+  border: 1px solid #1f2937;
+  border-radius: 16px;
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+}
+
+.avatarBig {
+  width: 96px;
+  height: 96px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 2.5rem;
+  margin-bottom: 1.5rem;
+  box-shadow: 0 4px 20px rgba(59, 130, 246, 0.3);
+}
+
+.fullName {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: #f3f4f6;
+  margin: 0 0 0.5rem 0;
+  text-align: center;
+}
+
+.roleBadge {
+  font-size: 0.8rem;
+  font-weight: 600;
+  background-color: rgba(59, 130, 246, 0.1);
+  color: #3b82f6;
+  border: 1px solid rgba(59, 130, 246, 0.2);
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  margin-bottom: 2rem;
+}
+
+.detailsList {
+  width: 100%;
+  border-top: 1px solid #1f2937;
+  padding-top: 1.5rem;
+}
+
+.detailsRow {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.75rem 0;
+  font-size: 0.9rem;
+}
+
+.detailLabel {
+  color: #9ca3af;
+}
+
+.detailVal {
+  color: #f3f4f6;
+  font-weight: 500;
+}
+
+.detailValActive {
+  color: #10b981;
+  font-weight: 600;
+}
+
+.passwordCard {
+  background-color: #111827;
+  border: 1px solid #1f2937;
+  border-radius: 16px;
+  padding: 2rem;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+}
+
+.cardHeader {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+  border-bottom: 1px solid #1f2937;
+  padding-bottom: 1rem;
+}
+
+.cardHeaderIcon {
+  color: #3b82f6;
+}
+
+.cardTitle {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #f3f4f6;
+  margin: 0;
+}
+
+.errorBox {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 1rem;
+  border-radius: 8px;
+  background-color: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.25);
+  color: #ef4444;
+  margin-bottom: 1.5rem;
+  font-size: 0.9rem;
+}
+
+.successBox {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 1rem;
+  border-radius: 8px;
+  background-color: rgba(16, 185, 129, 0.1);
+  border: 1px solid rgba(16, 185, 129, 0.25);
+  color: #10b981;
+  margin-bottom: 1.5rem;
+  font-size: 0.9rem;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.formGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #9ca3af;
+}
+
+.input {
+  padding: 0.75rem 1rem;
+  border-radius: 10px;
+  border: 1px solid #374151;
+  background-color: #1f2937;
+  color: #f3f4f6;
+  font-size: 0.95rem;
+  transition: all 0.2s ease-in-out;
+}
+
+.input:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+}
+
+.submitBtn {
+  margin-top: 0.5rem;
+  padding: 0.75rem;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+  color: #ffffff;
+  border: none;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+}
+
+.submitBtn:hover:not(:disabled) {
+  box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4);
+}
+
+.submitBtn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}

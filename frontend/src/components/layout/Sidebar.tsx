@@ -1,11 +1,11 @@
-import { NavLink, useNavigate } from 'react-router-dom';
+import { NavLink, useNavigate, useLocation } from 'react-router-dom';
 import { useAuthStore } from '../../store/auth.store';
 import { useThemeStore } from '../../store/theme.store';
 import { useLayout } from './LayoutContext';
 import {
   LayoutDashboard, Search, CalendarDays, MessageSquare,
   Bookmark, User, Settings, LogOut, Briefcase, DollarSign, Users,
-  Sun, Moon, X, ChevronsLeft, ChevronsRight, Shield,
+  Sun, Moon, X, ChevronsLeft, ChevronsRight, Shield, History,
 } from 'lucide-react';
 import styles from './Sidebar.module.css';
 
@@ -36,16 +36,35 @@ const bottomNav = [
   { to: '/settings', icon: Settings, label: 'Settings' },
 ];
 
+const adminNav = [
+  { to: '/admin',       icon: Shield,  label: 'Security Reports' },
+  { to: '/admin/users', icon: Users,   label: 'User Management' },
+  { to: '/admin/logs',  icon: History, label: 'Audit Activity Logs' },
+];
+
+const adminBottomNav = [
+  { to: '/admin/profile', icon: User,            label: 'Admin Profile' },
+  { to: '/dashboard',     icon: LayoutDashboard, label: 'Exit to App' },
+];
+
 export default function Sidebar({ isOpen, onClose, collapsed }: SidebarProps) {
   const { user, logout } = useAuthStore();
   const { theme, toggleTheme } = useThemeStore();
   const { onToggleCollapse } = useLayout();
   const navigate = useNavigate();
-  
-  let nav = user?.role === 'PROVIDER' ? [...providerNav] : [...clientNav];
-  if (user?.is_staff) {
+  const location = useLocation();
+
+  const isAdminRoute = location.pathname.startsWith('/admin');
+
+  let nav = isAdminRoute
+    ? [...adminNav]
+    : (user?.role === 'PROVIDER' ? [...providerNav] : [...clientNav]);
+
+  if (user?.is_staff && !isAdminRoute) {
     nav.push({ to: '/admin', icon: Shield, label: 'Admin Security' });
   }
+
+  let bottom = isAdminRoute ? [...adminBottomNav] : [...bottomNav];
 
   const handleLogout = () => { logout(); navigate('/login'); };
 
@@ -99,7 +118,7 @@ export default function Sidebar({ isOpen, onClose, collapsed }: SidebarProps) {
 
       {/* ── Bottom section ── */}
       <div className={styles.bottom}>
-        {bottomNav.map(({ to, icon: Icon, label }) => (
+        {bottom.map(({ to, icon: Icon, label }) => (
           <NavLink
             key={to}
             to={to}

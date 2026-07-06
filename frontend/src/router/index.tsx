@@ -17,20 +17,31 @@ import MyServicesPage from '../pages/provider/MyServicesPage';
 import AddServicePage from '../pages/provider/AddServicePage';
 import EarningsPage from '../pages/provider/EarningsPage';
 import AdminDashboardPage from '../pages/shared/AdminDashboardPage';
+import AdminLoginPage from '../pages/auth/AdminLoginPage';
+import AdminUserManagementPage from '../pages/shared/AdminUserManagementPage';
+import AdminActivityLogPage from '../pages/shared/AdminActivityLogPage';
+import AdminProfilePage from '../pages/shared/AdminProfilePage';
 
 export const router = createBrowserRouter([
   { path: '/login',           element: <LoginPage /> },
   { path: '/register',        element: <RegisterPage /> },
+  { path: '/admin/login',     element: <AdminLoginPage /> },
   { path: '/forgot-password', element: <ForgotPasswordPage /> },
   { path: '/reset-password',  element: <ResetPasswordPage /> },
+  {
+    path: '/admin',
+    element: <ProtectedRoute requireStaff><AppLayout /></ProtectedRoute>,
+    children: [
+      { index: true, element: <AdminDashboardPage /> },
+      { path: 'users', element: <AdminUserManagementPage /> },
+      { path: 'logs', element: <AdminActivityLogPage /> },
+      { path: 'profile', element: <AdminProfilePage /> },
+    ],
+  },
   {
     path: '/',
     element: <ProtectedRoute><AppLayout /></ProtectedRoute>,
     children: [
-      {
-        path: 'admin',
-        element: <ProtectedRoute requireStaff><AdminDashboardPage /></ProtectedRoute>,
-      },
       { index: true, element: <Navigate to="/dashboard" replace /> },
       { path: 'dashboard', element: <DashboardRouter /> },
       { path: 'search', element: <SearchPage /> },

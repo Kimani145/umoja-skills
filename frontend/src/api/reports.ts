@@ -42,3 +42,25 @@ export const toggleSuspendUser = async (
   const { data } = await api.post(`/admin/users/${userId}/toggle-suspend/`);
   return data;
 };
+
+export const getAdminUsers = async (): Promise<any[]> => {
+  const { data } = await api.get<any[]>('/admin/users/');
+  return data;
+};
+
+export const getAdminLogs = async (): Promise<any[]> => {
+  const { data } = await api.get<any[]>('/admin/logs/');
+  return data;
+};
+
+export const changeAdminPassword = async (
+  currentPassword: string,
+  newPassword: string
+): Promise<{ detail: string }> => {
+  const { data } = await api.post<{ detail: string }>('/admin/change-password/', {
+    current_password: currentPassword,
+    new_password: newPassword,
+  });
+  return data;
+};
+

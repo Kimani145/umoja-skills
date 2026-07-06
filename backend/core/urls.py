@@ -15,6 +15,7 @@ from users.views import (
     SavedProviderView, EarningsBreakdownView,
     PasswordResetRequestView, PasswordResetConfirmView,
     ReportCreateView, AdminReportListView, AdminReportResolveView, AdminUserSuspendView,
+    AdminUserListView, AdminActivityLogListView, AdminChangePasswordView,
 )
 from services.views import ServiceCategoryViewSet, ServiceListingViewSet, ProviderProfileView
 from bookings.views import BookingViewSet
@@ -77,6 +78,10 @@ urlpatterns = [
     path('api/admin/reports/', AdminReportListView.as_view(), name='admin_reports'),
     path('api/admin/reports/<uuid:report_id>/resolve/', AdminReportResolveView.as_view(), name='admin_report_resolve'),
     path('api/admin/users/<uuid:user_id>/toggle-suspend/', AdminUserSuspendView.as_view(), name='admin_user_suspend'),
+    path('api/admin/users/', AdminUserListView.as_view(), name='admin_users_list'),
+    path('api/admin/logs/', AdminActivityLogListView.as_view(), name='admin_activity_logs'),
+    path('api/admin/change-password/', AdminChangePasswordView.as_view(), name='admin_change_password'),
+
 
 
     # API routers (services, bookings, conversations, messages)

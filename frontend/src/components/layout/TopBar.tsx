@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { Bell, Search, User, LogOut, Menu } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuthStore } from '../../store/auth.store';
 import { useLayout } from './LayoutContext';
 import styles from './TopBar.module.css';
@@ -13,6 +13,8 @@ interface Props {
 export default function TopBar({ searchVisible = true, onMenuClick: onMenuClickProp }: Props) {
   const { user, logout } = useAuthStore();
   const navigate = useNavigate();
+  const location = useLocation();
+  const isAdminRoute = location.pathname.startsWith('/admin');
   const { onMenuClick: onMenuClickCtx } = useLayout();
   // Prop takes priority; fall back to context value from AppLayout
   const onMenuClick = onMenuClickProp ?? onMenuClickCtx;
@@ -54,11 +56,13 @@ export default function TopBar({ searchVisible = true, onMenuClick: onMenuClickP
       {/* ── Greeting (hidden on mobile, visible md+) ── */}
       <div className={styles.greet}>
         <h1 className={styles.title}>Welcome, {user?.first_name || 'there'}!</h1>
-        <p className={styles.subtitle}>Find trusted local service providers in Umoja.</p>
+        <p className={styles.subtitle}>
+          {isAdminRoute ? 'Administrative Control Panel' : 'Find trusted local service providers in Umoja.'}
+        </p>
       </div>
 
       {/* ── Search bar (hidden on mobile, visible lg+) ── */}
-      {searchVisible && (
+      {searchVisible && !isAdminRoute && (
         <div className={styles.searchWrap}>
           <Search size={16} className={styles.searchIcon} />
           <input
@@ -109,7 +113,7 @@ export default function TopBar({ searchVisible = true, onMenuClick: onMenuClickP
               </div>
               <button
                 className={styles.dropItem}
-                onClick={() => { setDropdownOpen(false); navigate('/profile'); }}
+                onClick={() => { setDropdownOpen(false); navigate(isAdminRoute ? '/admin/profile' : '/profile'); }}
               >
                 <User size={15} /> View Profile
               </button>
