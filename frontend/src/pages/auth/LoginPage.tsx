@@ -22,26 +22,52 @@ export default function LoginPage() {
     e.preventDefault();
     setLoading(true);
     setError('');
+    console.log('[LoginPage] Submitting login form', { email, password: '***' });
     try {
-      const { data } = await authApi.login(email, password);
+      console.log('[LoginPage] Calling authApi.login...');
+      const response = await authApi.login(email, password);
+      const { data } = response;
+      console.log('[LoginPage] Login response received:', {
+        status: response.status,
+        hasAccess: !!data.access,
+        hasRefresh: !!data.refresh,
+        hasUser: !!data.user,
+        hasChallenge: !!data.challenge_id,
+        detail: data.detail,
+        dataKeys: Object.keys(data),
+      });
+
       if (data.access && data.refresh && data.user) {
+        console.log('[LoginPage] Direct auth - setting auth state and navigating');
         setAuth(data.user, data.access, data.refresh);
         navigate(params.get('next') || '/dashboard');
         return;
       }
       if (data.verification_required && data.challenge_id) {
+        console.log('[LoginPage] Email verification required - showing code screen');
         setChallengeId(data.challenge_id);
         setVerificationMessage(data.detail);
         return;
       }
+      console.log('[LoginPage] Unexpected response state:', data);
       setError(data.detail || 'Invalid email or password.');
     } catch (err: any) {
+      console.error('[LoginPage] Login error:', {
+        message: err.message,
+        status: err.response?.status,
+        statusText: err.response?.statusText,
+        data: err.response?.data,
+        headers: err.response?.headers,
+        url: err.config?.url,
+      });
       const d = err.response?.data;
       let msg = 'Invalid email or password.';
       if (d?.detail) msg = d.detail;
       else if (d?.non_field_errors?.[0]) msg = d.non_field_errors[0];
       else if (d?.email?.[0]) msg = d.email[0];
       else if (d?.password?.[0]) msg = d.password[0];
+      else msg = err.message || msg;
+      console.error('[LoginPage] Final error message:', msg);
       setError(msg);
     } finally {
       setLoading(false);
