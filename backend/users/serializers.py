@@ -123,7 +123,9 @@ class RegisterSerializer(serializers.ModelSerializer):
         return value
 
     def validate_phone(self, value: str) -> str:
-        return _validate_unique_phone(value)
+        # Validate format first, then check uniqueness
+        normalized = validate_kenyan_phone(value)
+        return _validate_unique_phone(normalized)
 
     def validate_password(self, value: str) -> str:
         if len(value) < 8:
@@ -133,9 +135,6 @@ class RegisterSerializer(serializers.ModelSerializer):
         if not re.search(r'[0-9]', value):
             raise serializers.ValidationError('Password must contain at least one number.')
         return value
-
-    def validate_phone(self, value: str) -> str:
-        return validate_kenyan_phone(value)
 
     def validate_first_name(self, value: str) -> str:
         value = value.strip()

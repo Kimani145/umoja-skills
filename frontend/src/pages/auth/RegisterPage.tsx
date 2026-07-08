@@ -152,14 +152,18 @@ export default function RegisterPage() {
       setServerError(data.detail || 'Registration failed. Please try again.');
     } catch (err: any) {
       const d = err.response?.data;
-      const msg =
-        d?.email?.[0] ||
-        d?.phone?.[0] ||
-        d?.first_name?.[0] ||
-        d?.password?.[0] ||
-        d?.detail ||
-        d?.non_field_errors?.[0] ||
-        'Registration failed. Please try again.';
+      let msg = 'Registration failed. Please try again.';
+      
+      // Try to extract any validation error
+      if (d?.email?.[0]) msg = d.email[0];
+      else if (d?.phone?.[0]) msg = d.phone[0];
+      else if (d?.first_name?.[0]) msg = d.first_name[0];
+      else if (d?.last_name?.[0]) msg = d.last_name[0];
+      else if (d?.password?.[0]) msg = d.password[0];
+      else if (d?.detail) msg = d.detail;
+      else if (d?.non_field_errors?.[0]) msg = d.non_field_errors[0];
+      else if (typeof d === 'string') msg = d;
+      
       setServerError(msg);
     } finally {
       setLoading(false);

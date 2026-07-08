@@ -41,11 +41,13 @@ export default function AdminLoginPage() {
       }
       setError(data.detail || 'Invalid email or password.');
     } catch (err: any) {
-      setError(
-        err.response?.data?.detail ||
-        err.response?.data?.non_field_errors?.[0] ||
-        'Invalid email or password.'
-      );
+      const d = err.response?.data;
+      let msg = 'Invalid email or password.';
+      if (d?.detail) msg = d.detail;
+      else if (d?.non_field_errors?.[0]) msg = d.non_field_errors[0];
+      else if (d?.email?.[0]) msg = d.email[0];
+      else if (d?.password?.[0]) msg = d.password[0];
+      setError(msg);
     } finally {
       setLoading(false);
     }
