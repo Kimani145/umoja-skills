@@ -1,0 +1,105 @@
+# What You Need to Move Project to Your Account - Quick Summary
+
+## 🎯 The 4 Services You Need
+
+### **1. GitHub** (Code)
+- Sign up: https://github.com/signup
+- Fork or clone the repo
+- **What you give:** Your GitHub username
+
+### **2. Supabase** (Database - PostgreSQL)
+- Sign up: https://supabase.com
+- Create a new project
+- **What you get:** 
+  - `DATABASE_URL` = connection string to your database
+  - `PROJECT_ID` = your supabase project ID
+
+### **3. Render** (Backend Server - Django)
+- Sign up: https://render.com
+- Connect to your GitHub repo
+- **What you need:**
+  - `SECRET_KEY` = random string (generate at https://djecrety.ir/)
+  - `DATABASE_URL` = from Supabase above
+  - `VERCEL_FRONTEND_URL` = your frontend URL (from step 4)
+
+### **4. Vercel** (Frontend Server - React)
+- Sign up: https://vercel.com
+- Connect to your GitHub repo
+- **What you need:**
+  - `VITE_API_URL` = your Render backend URL
+  - **You get:** Your frontend URL
+
+---
+
+## 📝 Information to Collect
+
+Fill this in as you create each account:
+
+```
+1. GITHUB
+   Your username: _________________
+   Your repo URL: https://github.com/[username]/umoja-skills
+
+2. SUPABASE (Database)
+   Database Password: _________________ (write this down!)
+   DATABASE_URL: postgresql://postgres:_______@db._________.supabase.co:5432/postgres
+
+3. RENDER (Backend)
+   SECRET_KEY: _________________ (from https://djecrety.ir/)
+   RENDER_URL: https://umoja-skills-[username].onrender.com
+   
+4. VERCEL (Frontend)
+   VERCEL_URL: https://umoja-skills-[username].vercel.app
+```
+
+---
+
+## 🚀 Quick Steps
+
+1. **Create GitHub account** → Fork the repo to your account
+2. **Create Supabase account** → Create database → Copy `DATABASE_URL`
+3. **Create Render account** → Connect GitHub → Set env vars (SECRET_KEY, DATABASE_URL, VERCEL_URL)
+4. **Create Vercel account** → Connect GitHub → Set env vars (VITE_API_URL = your Render URL)
+5. **Test:** Go to your Vercel URL, try registering an account
+
+---
+
+## 🔐 Environment Variables Summary
+
+**On Render (Backend):**
+```
+SECRET_KEY=[generate at https://djecrety.ir/]
+DEBUG=False
+DATABASE_URL=[from Supabase]
+ALLOWED_HOSTS=*
+VERCEL_FRONTEND_URL=https://umoja-skills-[your-username].vercel.app
+EMAIL_BACKEND=django.core.mail.backends.console.EmailBackend
+```
+
+**On Vercel (Frontend):**
+```
+VITE_API_URL=https://umoja-skills-[your-username].onrender.com/api
+```
+
+---
+
+## ✅ How to Know It's Working
+
+1. ✅ Render shows "Live" (green checkmark)
+2. ✅ Vercel shows "Ready" (green checkmark)
+3. ✅ Backend health check works: `https://umoja-skills-[your-username].onrender.com/api/health/`
+4. ✅ Frontend loads: `https://umoja-skills-[your-username].vercel.app`
+5. ✅ Can create account on the frontend
+
+---
+
+## 💡 Tips
+
+- **First request is slow?** Free Render tier sleeps after 15 min (takes 30 sec to wake up)
+- **Database not working?** Check DATABASE_URL is correct
+- **Frontend can't reach backend?** Check VITE_API_URL and VERCEL_FRONTEND_URL match
+- **Stuck?** Check the full MIGRATION_GUIDE.md file in the project repo
+
+---
+
+**Full detailed guide:** Open `MIGRATION_GUIDE.md` in the project folder for step-by-step instructions with screenshots!
