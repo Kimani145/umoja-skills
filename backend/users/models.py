@@ -95,7 +95,8 @@ class EmailVerificationChallenge(models.Model):
 
     @classmethod
     def create_for_user(cls, user, purpose):
-        cls.objects.filter(user=user, purpose=purpose, used=False).update(used=True)
+        # Delete all old active challenges to avoid constraint conflicts
+        cls.objects.filter(user=user, purpose=purpose, used=False).delete()
         code = f"{secrets.randbelow(1_000_000):06d}"
         return cls.objects.create(
             user=user,
