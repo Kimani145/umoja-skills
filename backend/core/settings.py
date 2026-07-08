@@ -10,7 +10,12 @@ import dj_database_url
 from dotenv import load_dotenv
 
 BASE_DIR = Path(__file__).resolve().parent.parent
+PROJECT_DIR = BASE_DIR.parent
+
+# Local setup scripts may create the development env in the project root.
+# Load backend/.env first, then fall back to the project-level .env.local.
 load_dotenv(BASE_DIR / '.env')
+load_dotenv(PROJECT_DIR / '.env.local')
 
 # ── Security ──────────────────────────────────────────────────────────────────
 SECRET_KEY = os.environ.get('SECRET_KEY', '')

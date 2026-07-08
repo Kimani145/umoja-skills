@@ -161,6 +161,7 @@ export default function RegisterPage() {
       else if (d?.last_name?.[0]) msg = d.last_name[0];
       else if (d?.password?.[0]) msg = d.password[0];
       else if (d?.detail) msg = d.detail;
+      else if (d?.error) msg = d.error;
       else if (d?.non_field_errors?.[0]) msg = d.non_field_errors[0];
       else if (typeof d === 'string') msg = d;
       

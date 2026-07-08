@@ -22,6 +22,31 @@ from django.db.models.functions import TruncMonth
 from django.db.models import Sum, Count
 
 
+def send_deliverable_mail(*args, **kwargs):
+    """
+    Send mail only when the configured backend can actually deliver it.
+    In production, console/dummy email backends create unusable verification
+    flows because users are asked for codes that only appear in server logs.
+    """
+    email_backend = getattr(django_settings, 'EMAIL_BACKEND', '').lower()
+    non_delivering_backends = (
+        'console.emailbackend',
+        'dummy.emailbackend',
+        'locmem.emailbackend',
+    )
+
+    if not django_settings.DEBUG:
+        if any(email_backend.endswith(backend) for backend in non_delivering_backends):
+            raise RuntimeError('Email delivery is not configured.')
+        if email_backend.endswith('smtp.emailbackend') and (
+            not getattr(django_settings, 'EMAIL_HOST_USER', '')
+            or not getattr(django_settings, 'EMAIL_HOST_PASSWORD', '')
+        ):
+            raise RuntimeError('SMTP credentials are not configured.')
+
+    return send_mail(*args, **kwargs)
+
+
 
 class RegisterView(APIView):
     """Register a new user and send an email verification challenge."""
@@ -71,7 +96,7 @@ class RegisterView(APIView):
 
     @staticmethod
     def _send_verification_email(user, challenge, purpose_label):
-        send_mail(
+        send_deliverable_mail(
             subject='Confirm your Umoja Skills account',
             message=(
                 f"Hi {user.first_name},\n\n"
@@ -125,7 +150,7 @@ class LoginView(APIView):
 
     @staticmethod
     def _send_verification_email(user, challenge):
-        send_mail(
+        send_deliverable_mail(
             subject='Confirm your Umoja Skills sign-in',
             message=(
                 f"Hi {user.first_name},\n\n"

@@ -59,6 +59,9 @@ echo [3/4] Setup complete!
 echo.
 echo [4/4] Next steps:
 echo.
+echo If your terminal is at C:\UmojaSkills, you can run:
+echo   npm run dev
+echo.
 echo To start the backend:
 echo   1. cd backend
 echo   2. .\.venv\Scripts\activate.bat
