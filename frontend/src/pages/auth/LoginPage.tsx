@@ -24,6 +24,11 @@ export default function LoginPage() {
     setError('');
     try {
       const { data } = await authApi.login(email, password);
+      if (data.access && data.refresh && data.user) {
+        setAuth(data.user, data.access, data.refresh);
+        navigate(params.get('next') || '/dashboard');
+        return;
+      }
       if (data.verification_required && data.challenge_id) {
         setChallengeId(data.challenge_id);
         setVerificationMessage(data.detail);

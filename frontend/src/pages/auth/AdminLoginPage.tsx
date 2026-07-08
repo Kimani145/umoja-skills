@@ -25,6 +25,15 @@ export default function AdminLoginPage() {
     setError('');
     try {
       const { data } = await authApi.login(email, password);
+      if (data.access && data.refresh && data.user) {
+        if (!data.user.is_staff) {
+          setError('Access Denied: You do not have administrator privileges.');
+          return;
+        }
+        setAuth(data.user, data.access, data.refresh);
+        navigate(params.get('next') || '/admin');
+        return;
+      }
       if (data.verification_required && data.challenge_id) {
         setChallengeId(data.challenge_id);
         setVerificationMessage(data.detail);

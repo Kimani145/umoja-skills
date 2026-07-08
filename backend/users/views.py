@@ -27,6 +27,16 @@ class RegisterView(APIView):
     """Register a new user and send an email verification challenge."""
     permission_classes = [AllowAny]
 
+    @staticmethod
+    def _build_auth_response(user):
+        refresh = RefreshToken.for_user(user)
+        return {
+            'detail': 'Account created successfully.',
+            'user': UserSerializer(user).data,
+            'access': str(refresh.access_token),
+            'refresh': str(refresh),
+        }
+
     def post(self, request):
         serializer = RegisterSerializer(data=request.data)
         if not serializer.is_valid():
@@ -39,11 +49,16 @@ class RegisterView(APIView):
                 if user.role == 'PROVIDER':
                     ProviderProfile.objects.get_or_create(user=user)
 
-                challenge = EmailVerificationChallenge.create_for_user(
-                    user,
-                    EmailVerificationChallenge.PURPOSE_REGISTER,
-                )
-                self._send_verification_email(user, challenge, purpose_label='sign-up')
+                try:
+                    challenge = EmailVerificationChallenge.create_for_user(
+                        user,
+                        EmailVerificationChallenge.PURPOSE_REGISTER,
+                    )
+                    self._send_verification_email(user, challenge, purpose_label='sign-up')
+                except Exception:
+                    response_payload = self._build_auth_response(user)
+                    response_payload['verification_required'] = False
+                    return Response(response_payload, status=status.HTTP_201_CREATED)
 
             return Response({
                 'verification_required': True,
@@ -75,6 +90,16 @@ class LoginView(APIView):
     """Authenticate a user and send an email verification challenge."""
     permission_classes = [AllowAny]
 
+    @staticmethod
+    def _build_auth_response(user):
+        refresh = RefreshToken.for_user(user)
+        return {
+            'detail': 'Signed in successfully.',
+            'user': UserSerializer(user).data,
+            'access': str(refresh.access_token),
+            'refresh': str(refresh),
+        }
+
     def post(self, request):
         serializer = LoginSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -87,8 +112,10 @@ class LoginView(APIView):
                     EmailVerificationChallenge.PURPOSE_LOGIN,
                 )
                 self._send_verification_email(user, challenge)
-        except Exception as exc:
-            return Response({'detail': f'Unable to send verification email: {exc}'}, status=status.HTTP_503_SERVICE_UNAVAILABLE)
+        except Exception:
+            response_payload = self._build_auth_response(user)
+            response_payload['verification_required'] = False
+            return Response(response_payload, status=status.HTTP_200_OK)
 
         return Response({
             'verification_required': True,

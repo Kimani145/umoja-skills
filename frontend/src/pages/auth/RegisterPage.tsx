@@ -137,6 +137,12 @@ export default function RegisterPage() {
         role:       form.role,
       });
 
+      if (data.access && data.refresh && data.user) {
+        setAuth(data.user, data.access, data.refresh);
+        navigate('/dashboard');
+        return;
+      }
+
       if (data.verification_required && data.challenge_id) {
         setChallengeId(data.challenge_id);
         setVerificationMessage(data.detail);

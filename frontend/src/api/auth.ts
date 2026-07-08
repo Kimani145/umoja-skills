@@ -11,10 +11,10 @@ export const authApi = {
     first_name: string;
     last_name: string;
   }) =>
-    api.post<{ verification_required?: boolean; challenge_id?: string; detail: string }>('/auth/register/', data),
+    api.post<{ verification_required?: boolean; challenge_id?: string; detail: string; access?: string; refresh?: string; user?: User }>('/auth/register/', data),
 
   login: (email: string, password: string) =>
-    api.post<{ verification_required?: boolean; challenge_id?: string; detail: string }>('/auth/login/', { email, password }),
+    api.post<{ verification_required?: boolean; challenge_id?: string; detail: string; access?: string; refresh?: string; user?: User }>('/auth/login/', { email, password }),
 
   confirmEmailVerification: (challengeId: string, code: string) =>
     api.post<{ detail: string; user: User; access: string; refresh: string }>('/auth/email-verification/confirm/', {
