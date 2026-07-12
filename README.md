@@ -136,8 +136,6 @@ Admin panel at: **http://localhost:8000/umoja-mgmt/**
 | Variable | Required | Description |
 |---|---|---|
 | `VITE_API_URL` | ✅ | Backend API base URL |
-| `VITE_SUPABASE_URL` | ✅ | Supabase project URL |
-| `VITE_SUPABASE_PUBLISHABLE_KEY` | ✅ | Supabase anon/publishable key |
 
 > ⚠️ **Never commit `.env` files.** Use `.env.example` as the template.
 
@@ -157,7 +155,6 @@ The backend deploys automatically via `render.yaml`. Set all production env vars
 ### Frontend — Vercel
 Set in Vercel project settings:
 - `VITE_API_URL` — your Render backend URL
-- `VITE_SUPABASE_URL` and `VITE_SUPABASE_PUBLISHABLE_KEY`
 
 ---
 

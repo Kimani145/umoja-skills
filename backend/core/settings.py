@@ -199,4 +199,7 @@ EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD', '')
 DEFAULT_FROM_EMAIL  = os.environ.get('DEFAULT_FROM_EMAIL', 'Umoja Skills <noreply@umoja-skills.com>')
 
 # Frontend URL — used to build reset links in password reset emails
-FRONTEND_URL = os.environ.get('FRONTEND_URL', 'http://localhost:5173')
+FRONTEND_URL = os.environ.get(
+    'FRONTEND_URL',
+    os.environ.get('VERCEL_FRONTEND_URL', 'http://localhost:5173')
+)

@@ -18,6 +18,8 @@ services:
           property: connectionString
       - key: ALLOWED_HOSTS
         value: "*"
+      - key: FRONTEND_URL
+        value: "https://umoja-skills.vercel.app"
       - key: VERCEL_FRONTEND_URL
         value: "https://umoja-skills.vercel.app"
 
